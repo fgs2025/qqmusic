@@ -4,8 +4,12 @@
       <div class="logo">
         <img :src="logoPath" alt="" />
       </div>
+      <!-- 顶部导航 -->
       <nav-box></nav-box>
+      <!-- 搜索 -->
       <search></search>
+      <!-- 登陆 -->
+      <login></login>
     </div>
   </div>
 </template>
@@ -15,12 +19,14 @@ export default {
   components: {
     navBox: require("./components/nav.vue").default, //顶部导航菜单
     search: require("./components/search.vue").default, //搜索
+    login: require("./components/login.vue").default, //登陆
   },
   data() {
     return {
-      logoPath: "https://y.gtimg.cn/mediastyle/yqq/img/logo@2x.png?nowebp=1",
+      logoPath: "https://y.gtimg.cn/mediastyle/yqq/img/logo@2x.png?nowebp=1",//logo地址
     };
   },
+  
 };
 </script>
 

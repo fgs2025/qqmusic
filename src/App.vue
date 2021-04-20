@@ -6,4 +6,5 @@
 
 <style lang="less">
 @import url(./style/global.less);
+@import url(./style/iconfont.css);
 </style>
