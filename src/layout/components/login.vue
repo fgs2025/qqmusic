@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrap">
     <div class="login-btn" @click="loginOpen = true">登录</div>
-    <!-- <div @click="aaa">测试</div> -->
+    <div @click="aaa">测试</div>
     <div class="login-box" v-if="loginOpen" @click="loginOpen = false">
       <div class="login-form" @click.stop="() => false">
         <div class="form-title">
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { setCookie } from "@/api/user.js";
+import { setCookie,detail,getCookie ,Cookie} from "@/api/user.js";
 export default {
   data() {
     return {
@@ -59,9 +59,12 @@ export default {
     };
   },
   mounted() {
-    // getCookie().then((res) => {
-    //   console.log(res);
-    // });
+    getCookie().then((res) => {
+      console.log(res);
+    });
+    Cookie().then(res=>{
+      console.log(res);
+    })
   },
   methods: {
     login(formName) {
@@ -79,11 +82,11 @@ export default {
         }
       });
     },
-    // aaa() {
-    //   detail().then((res) => {
-    //     console.log(res);
-    //   });
-    // },
+    aaa() {
+      detail().then((res) => {
+        console.log(res);
+      });
+    },
   },
 };
 </script>
