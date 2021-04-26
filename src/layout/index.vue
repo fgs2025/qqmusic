@@ -23,10 +23,9 @@ export default {
   },
   data() {
     return {
-      logoPath: "https://y.gtimg.cn/mediastyle/yqq/img/logo@2x.png?nowebp=1",//logo地址
+      logoPath: "https://y.gtimg.cn/mediastyle/yqq/img/logo@2x.png?nowebp=1", //logo地址
     };
   },
-  
 };
 </script>
 
