@@ -1,6 +1,6 @@
 <template>
-  <div class="info">
-    <img :src="img" alt="" />
+  <div class="info pointer">
+    <img :src="img" alt="" class="imgMax border-radius50" />
   </div>
 </template>
 
@@ -14,12 +14,5 @@ export default {
 .info {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
-  img {
-    width: 100%;
-    height: 100%;
-  }
 }
 </style>

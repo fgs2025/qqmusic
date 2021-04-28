@@ -2,10 +2,10 @@
   <div class="login-box" v-if="loginOpen" @click="loginOpen = false">
     <div class="login-form" @click.stop="() => false">
       <div class="form-title">
-        <span>登陆</span>
-        <i class="iconfont icon-guanbi" @click="loginOpen = false"></i>
+        <span class="pointer">登陆</span>
+        <i class="iconfont icon-guanbi pointer" @click="loginOpen = false"></i>
       </div>
-      <div class="form-body">
+      <div class="form-body margin0Auto">
         <el-form
           :model="ruleForm"
           :rules="rules"
@@ -93,7 +93,6 @@ export default {
   background-color: rgba(0, 0, 0, 0.2);
   .login-form {
     width: 700px;
-    //   height: 500px;
     padding-bottom: 100px;
     background-color: #fff;
     position: relative;
@@ -106,7 +105,6 @@ export default {
       text-align: center;
       position: relative;
       span {
-        cursor: pointer;
         &:hover {
           color: #31c27c;
         }
@@ -115,13 +113,11 @@ export default {
         position: absolute;
         right: 10px;
         top: -10px;
-        cursor: pointer;
       }
     }
     .form-body {
       width: 50%;
-      // height: 50%;
-      margin: 0 auto;
+
       margin-top: 50px;
       .form-btn {
         width: 100%;

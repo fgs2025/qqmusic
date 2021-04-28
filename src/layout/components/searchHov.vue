@@ -3,7 +3,7 @@
     <!-- 热门歌曲 -->
     <div class="hot-list">
       <div
-        class="hot-item"
+        class="hot-item flex pointer"
         v-for="(item, index) in hot_list"
         :key="index"
         @click="search(item.k)"
@@ -17,18 +17,18 @@
     </div>
     <!-- 搜索历史 -->
     <div class="search_history">
-      <div class="top">
+      <div class="top flex">
         <span>搜索历史</span>
-        <i class="closeAll el-icon-delete" @click="closeAll"></i>
+        <i class="closeAll el-icon-delete pointer" @click="closeAll"></i>
       </div>
       <div
-        class="history-item"
+        class="history-item flex pointer"
         v-for="(item, index) in search_history"
         :key="index"
         @click="search(item)"
       >
         <span>{{ item }}</span>
-        <i class="close el-icon-close" @click.stop="close(index)"></i>
+        <i class="close el-icon-close pointer" @click.stop="close(index)"></i>
       </div>
     </div>
   </div>
@@ -129,12 +129,10 @@ export default {
   .hot-list {
     padding-top: 5px;
     .hot-item {
-      display: flex;
       height: 36px;
       padding: 0 11px;
       align-items: center;
       justify-content: space-between;
-      cursor: pointer;
       &:hover {
         background-color: #31c27c;
       }
@@ -160,7 +158,6 @@ export default {
     .top {
       padding: 0 11px;
       height: 36px;
-      display: flex;
       align-items: center;
       justify-content: space-between;
       color: #999;
@@ -168,25 +165,22 @@ export default {
       .closeAll {
         font-size: 16px;
         line-height: 36px;
-        cursor: pointer;
       }
     }
     .history-item {
       padding: 0 11px;
       height: 36px;
-      display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 14px;
       .close {
         font-size: 18px;
         color: #fff;
-        cursor: pointer;
+      
       }
       &:hover {
         background-color: #31c27c;
         color: #fff;
-        cursor: pointer;
       }
     }
   }

@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="head-wrap">
-      <div class="logo">
-        <img :src="logoPath" alt="" />
+    <div class="head-wrap width1200 margin0Auto flex">
+      <div class="logo pointer">
+        <img :src="logoPath" alt="" class="imgMax" />
       </div>
       <!-- 顶部导航 -->
       <nav-box></nav-box>
@@ -11,6 +11,7 @@
       <!-- 登陆 -->
       <login></login>
     </div>
+    <router-view />
   </div>
 </template>
 
@@ -31,19 +32,11 @@ export default {
 
 <style lang="less" scoped>
 .head-wrap {
-  width: 1200px;
-  margin: 0 auto;
-  display: flex;
   align-items: center;
   .logo {
     width: 170px;
     height: 46px;
     margin-right: 30px;
-    cursor: pointer;
-    img {
-      width: 100%;
-      height: 100%;
-    }
   }
 }
 </style>

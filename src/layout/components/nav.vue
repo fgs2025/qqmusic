@@ -1,12 +1,10 @@
 <template>
-  <div class="nav-wrap">
-    <div
-      :class="[z_index == index ? 'active' : '']"
-      v-for="(item, index) in navList"
-      :key="index"
-    >
-      {{ item.title }}
-    </div>
+  <div class="nav-wrap flex">
+    <router-link v-for="(item, index) in navList" :key="index" :to="item.path">
+      <div class="pointer">
+        {{ item.title }}
+      </div>
+    </router-link>
   </div>
 </template>
 
@@ -17,21 +15,25 @@ export default {
       navList: [
         {
           title: "音乐馆",
+          path: "/MusicHall",
         },
         {
           title: "我的音乐",
+          path: "/MyMusic",
         },
         {
           title: "客户端",
+          path: "#",
         },
         {
           title: "开放平台",
+          path: "#",
         },
         {
           title: "VIP",
+          path: "#",
         },
       ],
-      z_index: 0,
     };
   },
 };
@@ -39,18 +41,13 @@ export default {
 
 <style lang="less" scoped>
 .nav-wrap {
-  display: flex;
   margin-right: 40px;
   div {
     line-height: 90px;
     padding: 0 20px;
     font-size: 18px;
-    cursor: pointer;
-    &:hover {
-      color: #31c27c;
-    }
   }
-  .active {
+  .router-link-active {
     background-color: #31c27c;
     color: #fff !important;
   }

@@ -1,12 +1,12 @@
 <template>
-  <div class="search-wrap" @click.stop="() => false">
+  <div class="search-wrap flex" @click.stop="() => false">
     <input
       type="text"
       placeholder="搜索音乐、MV、歌单、用户"
       v-model="search_val"
       @click="show"
     />
-    <div class="searchBtn" @click="setSearch">
+    <div class="searchBtn pointer" @click="setSearch">
       <i class="el-icon-search"></i>
     </div>
 
@@ -83,7 +83,6 @@ export default {
 .search-wrap {
   border: 1px solid #c9c9c9;
   height: 36px;
-  display: flex;
   padding-left: 11px;
   margin-left: 20px;
   position: relative;
@@ -100,7 +99,6 @@ export default {
     height: 100%;
     text-align: center;
     line-height: 36px;
-    cursor: pointer;
     &:hover i {
       color: #31c27c;
     }
