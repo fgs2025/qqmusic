@@ -123,18 +123,20 @@ export default {
   methods: {
     tabClick(item, index) {
       // tab点击事件
-      this.tabList.forEach((row) => (row.active = false));
-      item.active = true;
-      this.swipeTtransform = false;
-      this.i = 0;
-      setTimeout(() => {
-        this.swipeTtransform = true;
-      });
-      //为你推荐接口和按分类推荐接口不同,0为为你推荐接口,其它为按分类接口
-      if (index == 0) {
-        this.playListuInit(); //为你推荐接口
-      } else {
-        this.playList(item.id); //按分类推荐接口
+      if (!item.active) {
+        this.tabList.forEach((row) => (row.active = false));
+        item.active = true;
+        this.swipeTtransform = false;
+        this.i = 0;
+        setTimeout(() => {
+          this.swipeTtransform = true;
+        });
+        //为你推荐接口和按分类推荐接口不同,0为为你推荐接口,其它为按分类接口
+        if (index == 0) {
+          this.playListuInit(); //为你推荐接口
+        } else {
+          this.playList(item.id); //按分类推荐接口
+        }
       }
     },
     playListuInit() {

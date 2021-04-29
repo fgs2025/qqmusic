@@ -2,6 +2,7 @@
   <div>
     <!-- 歌单推荐 -->
     <RecommendPlatyList></RecommendPlatyList>
+    <RecommendPlatyList></RecommendPlatyList>
   </div>
 </template>
 

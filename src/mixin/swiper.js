@@ -8,6 +8,7 @@ export const swiper = {
             nextBtn: true, //下一张按钮
             prevBtn: true, //上一张按钮
             swipeTtransform: true, //轮播图动画
+
         }
     },
     methods: {
@@ -39,6 +40,7 @@ export const swiper = {
                     this.nextBtn = true;
                 }, 500);
             }
+
         },
         prev() {
             //上一张点击方法
