@@ -1,7 +1,9 @@
 <template>
   <div class="login-wrap">
     <div class="login-btn" @click="loginOpen = true" v-if="!img">登录</div>
+    <!-- 用户信息 -->
     <info v-else :img="img"></info>
+    <!-- 登陆弹窗 -->
     <loginForm v-model="loginOpen"></loginForm>
   </div>
 </template>
@@ -9,7 +11,7 @@
 <script>
 import { Cookie, detail } from "@/api/user.js";
 export default {
-  inject: ["reload"],
+  // inject: ["reload"],
   data() {
     return {
       loginOpen: false,

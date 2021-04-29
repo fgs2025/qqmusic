@@ -35,7 +35,7 @@
 <script>
 import { setCookie, getCookie } from "@/api/user.js";
 export default {
-  inject: ["reload"],
+  inject: ["reload"],//APP.vue导进来的刷新
   props: ["value"],
   data() {
     return {

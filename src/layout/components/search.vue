@@ -6,6 +6,7 @@
       v-model="search_val"
       @click="show"
     />
+    <!-- 搜索按钮 -->
     <div class="searchBtn pointer" @click="setSearch">
       <i class="el-icon-search"></i>
     </div>
@@ -17,6 +18,7 @@
       ref="searchHov"
     ></search-hov>
 
+    <!-- 实时搜索 -->
     <searchQuick
       :search_show2="search_show2"
       :search_val="search_val"
@@ -27,14 +29,15 @@
 <script>
 export default {
   components: {
-    searchHov: require("./searchHov.vue").default,
-    searchQuick: require("./searchQuick.vue").default,
+    searchHov: require("./searchHov.vue").default, //搜索历史
+    searchQuick: require("./searchQuick.vue").default, //实时搜索
   },
   data() {
     return {
       search_val: "",
       search_show: false,
       search_show2: false,
+      timer: null,
     };
   },
   mounted() {
@@ -57,9 +60,14 @@ export default {
       });
     },
     setSearch() {
-      if (this.search_val) {
-        this.$refs.searchHov.setSearchHistory(this.search_val);
+      if (this.timer) {
+        clearTimeout(this.timer);
       }
+      this.timer = setTimeout(() => {
+        if (this.search_val) {
+          this.$refs.searchHov.setSearchHistory(this.search_val);
+        }
+      }, 300);
     },
     search(item) {
       this.search_val = item;

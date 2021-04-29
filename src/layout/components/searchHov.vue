@@ -40,21 +40,23 @@ export default {
   props: ["search_show"],
   data() {
     return {
-      hot_list: [],
-      search_history: [],
+      hot_list: [],//热门搜索
+      search_history: [],//搜索历史
     };
   },
   mounted() {
-    this.getSearchHot();
-    this.getSearchHistory();
+    this.getSearchHot();//获取热门搜索
+    this.getSearchHistory();//获取搜索历史
   },
   methods: {
     getSearchHot() {
+      //调用热门搜索接口
       searchHot().then((res) => {
         this.hot_list = res.data.splice(0, 5);
       });
     },
     getSearchHistory() {
+      //检查浏览器缓存的搜索历史
       if (JSON.parse(localStorage.getItem("search_history"))) {
         this.search_history = JSON.parse(
           localStorage.getItem("search_history")
@@ -62,36 +64,45 @@ export default {
       }
     },
     search(item) {
-      this.$emit("search", item);
-      this.setSearchHistory(item);
+      //搜索
+      this.$emit("search", item);//给父级的输入框添加点击的关键词
+      this.setSearchHistory(item);//给添加搜索历史方法传入关键词
     },
     closeAll() {
-      this.search_history = [];
-      localStorage.setItem(
+      //全部删除搜索历史
+      this.search_history = [];//清空搜索历史
+      localStorage.setItem(//清空浏览器缓存的搜索历史
         "search_history",
         JSON.stringify(this.search_history)
       );
     },
     close(index) {
-      this.search_history.splice(index, 1);
-      localStorage.setItem(
+      //单个删除搜索历史
+      this.search_history.splice(index, 1);//按索引删除某个搜索历史
+      localStorage.setItem(//同步至浏览器缓存
         "search_history",
         JSON.stringify(this.search_history)
       );
     },
-
     setSearchHistory(item) {
+      //添加搜索历史的方法
       if (!this.search_history.includes(item)) {
+        //搜索历史没有存在该关键词
         this.search_history.unshift(item);
+        //往前面添加关键词
         localStorage.setItem(
+          //同步至浏览器缓存
           "search_history",
           JSON.stringify(this.search_history)
         );
       } else {
+        //已存在该关键词
         let i = this.search_history.indexOf(item);
         this.search_history.splice(i, 1);
         this.search_history.unshift(item);
+        //删除该关键词并在头部添加该关键词
         localStorage.setItem(
+          //同步至浏览器缓存
           "search_history",
           JSON.stringify(this.search_history)
         );
