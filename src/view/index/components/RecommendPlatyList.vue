@@ -27,7 +27,7 @@
             </div>
             <div class="item-title">{{ ite.title }}</div>
             <div class="magnitude">
-              播放量:{{ ite.listen_num || ite.access_num | PlayNum }} 万
+              播放量: {{ ite.listen_num || ite.access_num | PlayNum }} 万
             </div>
           </li>
         </ul>

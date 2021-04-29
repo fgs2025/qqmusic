@@ -36,7 +36,11 @@ const routes = [
 
     ]
   },
-
+  {
+    path: '/player',
+    name: '音乐播放器',
+    component: () => import('../view/player/index.vue'),
+  }
 ]
 
 const router = new VueRouter({
