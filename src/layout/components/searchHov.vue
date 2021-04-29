@@ -12,7 +12,7 @@
           <span class="num">{{ index + 1 }}</span>
           <span>{{ item.k }}</span>
         </div>
-        <span class="right">{{ item.n | heatNum }}万</span>
+        <span class="right">{{ item.n | PlayNum }}万</span>
       </div>
     </div>
     <!-- 搜索历史 -->
@@ -101,14 +101,7 @@ export default {
       });
     },
   },
-  filters: {
-    heatNum(val) {
-      if (val > 10000) {
-        val = parseFloat(val / 10000).toFixed(1);
-      }
-      return val;
-    },
-  },
+  
 };
 </script>
 

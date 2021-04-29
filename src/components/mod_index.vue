@@ -1,6 +1,7 @@
 <template>
   <div class="mod_index-wrap">
     <div class="section_inner">
+      <!-- 标题 -->
       <div class="title">
         <slot name="title-wrap" />
       </div>
@@ -11,15 +12,17 @@
       <!-- swiper轮播 -->
       <div class="swiper-wrap">
         <slot name="swiper" />
-        <div class="paging-wrap">
-          <slot name="paging" />
-        </div>
+      </div>
+      <!-- 轮播指示点 -->
+      <div class="paging-wrap">
+        <slot name="paging" />
       </div>
     </div>
-    <!-- 左右按钮 -->
+    <!-- 右按钮 -->
     <div class="swiper-btn next">
       <slot name="next-wrap" />
     </div>
+    <!-- 左按钮 -->
     <div class="swiper-btn prev">
       <slot name="prev-wrap" />
     </div>
@@ -39,6 +42,7 @@ export default {};
   .section_inner {
     width: 1200px;
     margin: 0 auto;
+    padding-bottom: 30px;
     .title {
       padding-top: 4.16667%;
       padding-bottom: 2%;
@@ -49,17 +53,15 @@ export default {};
     }
     .mod_index_tab {
       position: relative;
-
       text-align: center;
       font-size: 15px;
     }
     .swiper-wrap {
       width: 1220px;
       overflow: hidden;
-      .paging-wrap {
-        margin-top: 30px;
-        margin-bottom: 30px;
-      }
+      margin-bottom: 30px;
+    }
+    .paging-wrap {
     }
   }
   .swiper-btn {
