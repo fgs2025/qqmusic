@@ -5,10 +5,10 @@ export const swiper = {
             start_itemlist: [], //初始获取到的列表
             translateX: 100, //轮播图步长
             i: 0, //轮播图第几个
-            nextBtn: true, //下一张按钮
-            prevBtn: true, //上一张按钮
             swipeTtransform: true, //轮播图动画
-
+            last: 0,
+            now: 0,
+            interval: 500
         }
     },
     methods: {
@@ -24,8 +24,9 @@ export const swiper = {
         },
         next() {
             //下一张点击方法
-            if (this.nextBtn) {
-                this.nextBtn = false;
+            this.now = +new Date()
+            if (this.now - this.last >= this.interval) {
+                this.last = this.now
                 if (this.i >= this.length) {
                     this.swipeTtransform = false;
                     this.i = 0;
@@ -36,16 +37,13 @@ export const swiper = {
                 } else {
                     this.i++;
                 }
-                setTimeout(() => {
-                    this.nextBtn = true;
-                }, 500);
             }
-
         },
         prev() {
             //上一张点击方法
-            if (this.prevBtn) {
-                this.prevBtn = false;
+            this.now = +new Date()
+            if (this.now - this.last >= this.interval) {
+                this.last = this.now
                 if (this.i == 0) {
                     this.swipeTtransform = false;
                     this.i = this.length;
@@ -56,9 +54,6 @@ export const swiper = {
                 } else {
                     this.i--;
                 }
-                setTimeout(() => {
-                    this.prevBtn = true;
-                }, 500);
             }
         },
         pagingClick(ind) {

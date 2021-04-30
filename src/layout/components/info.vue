@@ -1,6 +1,6 @@
 <template>
   <div class="info pointer">
-    <img :src="img" alt="" class="imgMax border-radius50" />
+    <img :src="img" alt="" class="w100h100 border-radius50" />
   </div>
 </template>
 

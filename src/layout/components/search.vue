@@ -60,9 +60,7 @@ export default {
       });
     },
     setSearch() {
-      if (this.timer) {
-        clearTimeout(this.timer);
-      }
+      clearTimeout(this.timer);
       this.timer = setTimeout(() => {
         if (this.search_val) {
           this.$refs.searchHov.setSearchHistory(this.search_val);

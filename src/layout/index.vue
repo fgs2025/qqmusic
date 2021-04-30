@@ -2,7 +2,7 @@
   <div>
     <div class="head-wrap width1200 margin0Auto flex">
       <div class="logo pointer">
-        <img :src="logoPath" alt="" class="imgMax" />
+        <img :src="logoPath" alt="" class="w100h100" />
       </div>
       <!-- 顶部导航 -->
       <nav-box></nav-box>
