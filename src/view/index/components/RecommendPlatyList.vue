@@ -23,7 +23,10 @@
             <div class="img-box">
               <img :src="ite.cover || ite.cover_url_medium" alt="" />
               <div class="mod_cover__mask"></div>
-              <i class="el-icon-video-play item-i"></i>
+              <i
+                class="el-icon-video-play item-i"
+                @click="songListClick(ite)"
+              ></i>
             </div>
             <div class="item-title">{{ ite.title }}</div>
             <div class="magnitude">
@@ -152,6 +155,13 @@ export default {
         this.start_itemlist = res.data.list;
         this.initSwiper();
       });
+    },
+    songListClick(ite) {
+      let routeData = this.$router.resolve({
+        name: "音乐播放器",
+      });
+      window.open(routeData.href, "_blank");
+      window.localStorage.setItem("songListId", ite.content_id || ite.tid);
     },
   },
   components: {

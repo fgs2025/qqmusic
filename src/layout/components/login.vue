@@ -11,7 +11,6 @@
 <script>
 import { Cookie, detail } from "@/api/user.js";
 export default {
-  // inject: ["reload"],
   data() {
     return {
       loginOpen: false,

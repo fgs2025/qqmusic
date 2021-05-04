@@ -31,5 +31,7 @@ export default {
 <style lang="less">
 @import url(./style/global.less);
 @import url(./style/iconfont.css);
-
+#app{
+  height: 100vh;
+}
 </style>
