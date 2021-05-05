@@ -132,9 +132,9 @@
             >
           </div>
           <div class="m_bottom">
-            <div class="slider__runway pointer">
+            <div class="slider__runway pointer" ref="musicSliderWrap">
               <div class="slider__bar" :style="{ width: audio.width + '%' }">
-                <div class="slider__button"></div>
+                <div class="slider__button" @mousedown="musicSlider"></div>
               </div>
             </div>
           </div>
@@ -163,7 +163,7 @@
             v-else
             @click="shengyin"
           ></i>
-          <div class="slider__runway pointer" ref="sliderRunway">
+          <div class="slider__runway pointer" ref="volumeSliderWrap">
             <div
               class="slider__bar"
               :style="{ width: audio.volume * 100 + '%' }"
@@ -171,7 +171,7 @@
               <div
                 class="slider__button"
                 ref="sliderButton"
-                @mousedown="start_move"
+                @mousedown="volumeSlider"
               ></div>
             </div>
           </div>
@@ -201,23 +201,23 @@ export default {
       songlist: [], //歌单列表
       ind: 0, //第几首歌
       imgUrl: "", //背景虚化图
-      name: "",
-      sing: "",
+      name: "", //歌名
+      sing: "", //歌手名
       audio: {
         palyState: true, //播放状态
         audioUrl: "", //当前播放的音乐链接
         currentTime: 0, //当前播放的进度
         duration: 0, //当前歌曲的总长度
-        width: 0,
-        volume: 0,
-        muted: false,
-        loop: false,
-        loading: false,
+        width: 0, //歌曲播放进度条宽度
+        volume: 0, //音量
+        muted: false, //是否静音
+        loop: false, //是否循环播放
+        loading: false, //加载
       },
-      type: 0,
-      indList: [],
-      tick: false,
-      scrollTop: 0,
+      type: 0, //播放类型,顺序，单曲，随机
+      indList: [], //播放过的歌曲
+      tick: false, //定位
+      scrollTop: 0, //歌单列表的位置
       typeList: [
         {
           iconfont: "icon-xunhuan",
@@ -236,10 +236,14 @@ export default {
         },
       ],
       slider: {
-        width: 0,
-        start_x: 0,
-        begin_x: 0,
+        volumeSliderWrap: 0, //音量外层宽度
+        volumeStartX: 0, //音量点击时的位置
+        volumeBeginX: 0, //音量当前的位置
+        musicSliderWrap: 0, //音乐进度条外层宽度
+        musicStartX: 0, //音乐进度条点击时的位置
+        musicBeginX: 0, //音乐进度条当前的位置
       },
+      timer: null,
     };
   },
   mounted() {
@@ -269,21 +273,26 @@ export default {
     //     });
     //   });
     // },
-    start_move(event) {
-      this.slider.start_x = event.clientX;
-      this.slider.width = this.$refs.sliderRunway.offsetWidth;
-      this.slider.begin_x = this.audio.volume;
-      document.body.addEventListener("mousemove", this.doc_move);
-      document.body.addEventListener("mouseup", this.remove_event);
+    volumeSlider(event) {
+      //音量按下事件
+      this.slider.volumeStartX = event.clientX;
+      this.slider.volumeSliderWrap = this.$refs.volumeSliderWrap.offsetWidth;
+      this.slider.volumeBeginX = this.audio.volume;
+      document.body.addEventListener("mousemove", this.volumeSlidermove);
+      document.body.addEventListener("mouseup", this.volumeSliderRemove);
     },
-    remove_event() {
-      document.body.removeEventListener("mousemove", this.doc_move);
-      document.body.removeEventListener("mouseup", this.remove_event);
+    volumeSliderRemove() {
+      //音量清除事件
+      document.body.removeEventListener("mousemove", this.volumeSlidermove);
+      document.body.removeEventListener("mouseup", this.volumeSliderRemove);
     },
-    doc_move(event) {
-      let begin_x = this.slider.begin_x;
+    volumeSlidermove(event) {
+      //音量按下的操作
+      let begin_x = this.slider.volumeBeginX;
       let scale =
-        begin_x - (this.slider.start_x - event.clientX) / this.slider.width;
+        begin_x -
+        (this.slider.volumeStartX - event.clientX) /
+          this.slider.volumeSliderWrap;
       if (scale >= 1) {
         scale = 1;
       }
@@ -293,27 +302,68 @@ export default {
       this.audio.volume = scale;
       this.$refs.audio.volume = scale;
     },
+
+    musicSlider(event) {
+      //音乐进度条按下事件
+      if (!this.audio.loading) {
+        this.$refs.audio.pause();
+        this.slider.musicStartX = event.clientX;
+        this.slider.musicSliderWrap = this.$refs.musicSliderWrap.offsetWidth;
+        this.slider.musicBeginX = this.audio.width;
+        document.body.addEventListener("mousemove", this.musicSliderMove);
+        document.body.addEventListener("mouseup", this.musicSliderRemove);
+      }
+    },
+    musicSliderRemove() {
+      //音乐进度条清除事件
+      document.body.removeEventListener("mousemove", this.musicSliderMove);
+      document.body.removeEventListener("mouseup", this.musicSliderRemove);
+      this.$refs.audio.play();
+    },
+    musicSliderMove(event) {
+      //音乐进度条的按下操作
+      let begin_x = this.slider.musicBeginX;
+      let scale =
+        begin_x -
+        ((this.slider.musicStartX - event.clientX) /
+          this.slider.musicSliderWrap) *
+          100;
+      if (scale >= 100) {
+        scale = 100;
+      }
+      if (scale <= 0) {
+        scale = 0;
+      }
+      this.audio.width = scale;
+      this.audio.currentTime = (this.audio.width / 100) * this.audio.duration;
+      this.$refs.audio.currentTime = this.audio.currentTime;
+    },
     play() {
+      //音乐开始播放了
       this.audio.palyState = true;
       this.audio.loading = false;
     },
     xiazai() {
+      //音乐下载
       let id = this.songlist[this.ind].songmid;
       songUrl(id).then((res) => {
         window.open(res.data);
       });
     },
     shengyin() {
+      //音量静音事件
       this.audio.muted = !this.audio.muted;
       this.$refs.audio.muted = this.audio.muted;
     },
     onLoadedmetadata(e) {
+      //音乐总长度
       this.audio.duration = Math.floor(e.target.duration);
     },
     timeupdate(e) {
+      //音乐播放到哪了
       let currentTime = e.target.currentTime;
       this.audio.currentTime = currentTime;
-      this.audio.width = parseInt((currentTime / this.audio.duration) * 100);
+      this.audio.width = (currentTime / this.audio.duration) * 100;
     },
     palyTyoe() {
       //播放类型
@@ -372,6 +422,7 @@ export default {
       this.songUrls(id);
     },
     scroll(click) {
+      //播放歌曲定位事件
       let childEl = this.$refs.main.children[this.ind + 1].offsetTop;
       let parentEl = this.$refs.main.offsetTop;
       this.scrollTop = childEl - parentEl - 55;
@@ -388,11 +439,12 @@ export default {
       });
     },
     tickClick() {
+      //在播放歌曲定位事件
       this.$refs.main.scrollTop = this.scrollTop;
     },
     randomPlay() {
+      //随机播放
       if (this.type == 2) {
-        //随机播放
         let pInd = this.ind;
         let nInd = Math.floor(Math.random() * this.songlist.length);
         if (nInd == pInd) {
@@ -432,9 +484,19 @@ export default {
     songUrls(id) {
       //获取播放链接
       songUrls(id).then((res) => {
-        this.audio.audioUrl = res.data[id];
-        this.audio.palyState = false;
-        this.audio.loading = true;
+        clearTimeout(this.timer);
+        this.audio.audioUrl = "";
+        if (res.data[id]) {
+          this.audio.audioUrl = res.data[id];
+          this.audio.palyState = false;
+          this.audio.loading = true;
+        } else {
+          this.audio.loading = true;
+          this.audio.palyState = false;
+          this.timer = setTimeout(() => {
+            this.nextSong();
+          }, 5000);
+        }
       });
       //获取背景虚化图
       song(id).then((res) => {
@@ -495,6 +557,7 @@ export default {
     background-position: 50%;
     filter: blur(65px);
     opacity: 0.6;
+    transition: background-image 1s;
   }
   .bg_player_mask {
     background-color: rgba(0, 0, 0, 0.35);
