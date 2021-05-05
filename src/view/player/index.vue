@@ -6,21 +6,8 @@
       :style="{ backgroundImage: `url(${imgUrl})` }"
     ></div>
     <div class="player-box w100h100 left0top0">
-      <div class="top">
-        <div class="logo">
-          <img
-            class="pointer"
-            src="https://y.qq.com/mediastyle/yqq/img/player_logo.png"
-            alt=""
-          />
-        </div>
-        <div class="info">
-          <!-- <img class="pointer" :src="img" alt="" />
-          <span class="pointer">退出</span> -->
-        </div>
-      </div>
+      <top></top>
       <div class="player-main">
-        <!-- <div class="player__bd"> -->
         <div class="bd_left">
           <div class="mod_songlist_toolbar">
             <div class="bar pointer">
@@ -40,7 +27,7 @@
               <i class="iconfont icon-qingkong"></i>清空列表
             </div>
           </div>
-          <div class="sb_main">
+          <div class="sb_main" ref="main">
             <div class="header item-box">
               <div class="header-songname">歌曲</div>
               <div class="header-sing">歌手</div>
@@ -50,17 +37,29 @@
               :class="[
                 'item-box',
                 audio.palyState && index == ind ? 'paly' : '',
+                audio.loading && index == ind ? 'loadingAnimation' : '',
               ]"
               v-for="(item, index) in songlist"
               :key="index"
               @dblclick="songPlay(item, index)"
             >
               <div class="num">
+                <i
+                  class="iconfont icon-jiazai pointer loading"
+                  v-if="audio.loading && index == ind"
+                ></i>
+                <template
+                  v-else-if="
+                    (audio.palyState && index != ind) ||
+                    audio.loading ||
+                    !audio.palyState
+                  "
+                  >{{ index + 1 }}</template
+                >
                 <span
                   class="paly"
-                  v-if="audio.palyState && index == ind"
+                  v-if="!audio.loading && index == ind && audio.palyState"
                 ></span>
-                <template v-else>{{ index + 1 }}</template>
               </div>
               <div class="name-box">
                 <span class="name">{{ item.songname }}</span>
@@ -94,22 +93,29 @@
                 </span>
               </div>
             </div>
+            <div class="tick" v-if="tick" @click="tickClick">
+              <i class="iconfont icon-ico_qiyeF9_baxin2x pointer"></i>
+            </div>
           </div>
         </div>
         <div class="bd_right">2</div>
-        <!-- </div> -->
       </div>
       <div class="player-ft">
         <div class="left">
           <i class="iconfont icon-shangyishou pointer" @click="prevSong"></i>
           <i
+            class="iconfont icon-jiazai pointer loading"
+            v-if="audio.loading"
+          ></i>
+          <i
             class="iconfont icon-zanting pointer"
             v-if="audio.palyState"
             @click="audio.palyState = false"
           ></i>
+
           <i
             class="iconfont icon-play pointer"
-            v-else
+            v-if="!audio.palyState && !audio.loading"
             @click="audio.palyState = true"
           ></i>
           <i
@@ -157,25 +163,30 @@
             v-else
             @click="shengyin"
           ></i>
-          <div class="slider__runway pointer">
+          <div class="slider__runway pointer" ref="sliderRunway">
             <div
               class="slider__bar"
               :style="{ width: audio.volume * 100 + '%' }"
             >
-              <div class="slider__button"></div>
+              <div
+                class="slider__button"
+                ref="sliderButton"
+                @mousedown="start_move"
+              ></div>
             </div>
           </div>
         </div>
       </div>
+
       <audio
         ref="audio"
         :src="audio.audioUrl"
-        controls
         autoplay
+        :loop="audio.loop"
+        @play="play"
         @loadedmetadata="onLoadedmetadata"
         @timeupdate="timeupdate"
         @ended="ended"
-        @volumechange="volumechange"
       ></audio>
     </div>
   </div>
@@ -200,9 +211,13 @@ export default {
         width: 0,
         volume: 0,
         muted: false,
+        loop: false,
+        loading: false,
       },
       type: 0,
       indList: [],
+      tick: false,
+      scrollTop: 0,
       typeList: [
         {
           iconfont: "icon-xunhuan",
@@ -220,21 +235,73 @@ export default {
           type: 2,
         },
       ],
+      slider: {
+        width: 0,
+        start_x: 0,
+        begin_x: 0,
+      },
     };
   },
   mounted() {
     this.getSongList();
     this.audio.volume = this.$refs.audio.volume;
+    // this.sliderBtn();
   },
   methods: {
+    // sliderBtn() {
+    //   this.slider.width = this.$refs.sliderRunway.offsetWidth;
+    //   this.$refs.sliderButton.addEventListener("mousedown", (e) => {
+    //     let x = e.pageX;
+    //     document.addEventListener("mousemove", (e) => {
+    //       let _x = e.pageX;
+    //       let scale = (_x - x + this.slider.width) / this.slider.width;
+    //       if (scale >= 1) {
+    //         scale = 1;
+    //       }
+    //       if (scale <= 0) {
+    //         scale = 0;
+    //       }
+    //       this.audio.volume = scale;
+    //       // this.$refs.audio.volume = scale;
+    //     });
+    //     document.addEventListener("mouseup", () => {
+    //       document.onmousemove = null;
+    //     });
+    //   });
+    // },
+    start_move(event) {
+      this.slider.start_x = event.clientX;
+      this.slider.width = this.$refs.sliderRunway.offsetWidth;
+      this.slider.begin_x = this.audio.volume;
+      document.body.addEventListener("mousemove", this.doc_move);
+      document.body.addEventListener("mouseup", this.remove_event);
+    },
+    remove_event() {
+      document.body.removeEventListener("mousemove", this.doc_move);
+      document.body.removeEventListener("mouseup", this.remove_event);
+    },
+    doc_move(event) {
+      let begin_x = this.slider.begin_x;
+      let scale =
+        begin_x - (this.slider.start_x - event.clientX) / this.slider.width;
+      if (scale >= 1) {
+        scale = 1;
+      }
+      if (scale <= 0) {
+        scale = 0;
+      }
+      this.audio.volume = scale;
+      this.$refs.audio.volume = scale;
+    },
+    play() {
+      this.audio.palyState = true;
+      this.audio.loading = false;
+    },
     xiazai() {
       let id = this.songlist[this.ind].songmid;
       songUrl(id).then((res) => {
         window.open(res.data);
       });
-    },
-    volumechange(e) {
-      this.audio.volume = e.target.volume;
     },
     shengyin() {
       this.audio.muted = !this.audio.muted;
@@ -255,6 +322,11 @@ export default {
       } else {
         this.type++;
       }
+      if (this.type == 1) {
+        this.audio.loop = true;
+      } else {
+        this.audio.loop = false;
+      }
     },
     prevSong() {
       //上一首
@@ -271,6 +343,7 @@ export default {
         }
         this.randomPlay();
       }
+      this.scroll();
       let id = this.songlist[this.ind].songmid;
       this.name = this.songlist[this.ind].songname;
       this.sing = this.songlist[this.ind].singer[0].name;
@@ -292,11 +365,30 @@ export default {
       if (this.type != 1) {
         this.indList.push(this.ind);
       }
-      this.audio.audioUrl = "";
+      this.scroll();
       let id = this.songlist[this.ind].songmid;
       this.name = this.songlist[this.ind].songname;
       this.sing = this.songlist[this.ind].singer[0].name;
       this.songUrls(id);
+    },
+    scroll(click) {
+      let childEl = this.$refs.main.children[this.ind + 1].offsetTop;
+      let parentEl = this.$refs.main.offsetTop;
+      this.scrollTop = childEl - parentEl - 55;
+      if (!click) {
+        this.$refs.main.scrollTop = this.scrollTop;
+      }
+      this.$refs.main.addEventListener("scroll", (e) => {
+        let f = e.target.scrollTop;
+        if (f - this.scrollTop >= 100 || this.scrollTop - f >= 100) {
+          this.tick = true;
+        } else {
+          this.tick = false;
+        }
+      });
+    },
+    tickClick() {
+      this.$refs.main.scrollTop = this.scrollTop;
     },
     randomPlay() {
       if (this.type == 2) {
@@ -312,29 +404,37 @@ export default {
     },
     ended() {
       //歌曲播放结束
-      this.audio.autoplay = false;
       this.nextSong();
     },
     songPlay(item, index) {
       //双击听歌
+      if (index == this.ind && this.audio.loading) {
+        return;
+      }
       if (index == this.ind && this.audio.palyState) {
         this.audio.palyState = false;
         return;
       }
-      this.audio.palyState = true;
+      if (index == this.ind && !this.audio.palyState) {
+        this.audio.palyState = true;
+        return;
+      }
       if (index != this.ind) {
         this.ind = index;
         this.indList.push(this.ind);
+        this.scroll("click");
+        let id = item.songmid;
+        this.name = this.songlist[this.ind].songname;
+        this.sing = this.songlist[this.ind].singer[0].name;
+        this.songUrls(id);
       }
-      let id = item.songmid;
-      this.name = this.songlist[this.ind].songname;
-      this.sing = this.songlist[this.ind].singer[0].name;
-      this.songUrls(id);
     },
     songUrls(id) {
       //获取播放链接
       songUrls(id).then((res) => {
         this.audio.audioUrl = res.data[id];
+        this.audio.palyState = false;
+        this.audio.loading = true;
       });
       //获取背景虚化图
       song(id).then((res) => {
@@ -346,18 +446,21 @@ export default {
       //获取歌单详情
       let id = window.localStorage.getItem("songListId");
       songlist(id).then((res) => {
-        this.songlist = res.data.songlist.slice(0, 10);
+        this.songlist = res.data.songlist.slice(0, 50);
         this.indList.push(this.ind);
         let songId = this.songlist[this.ind].songmid;
         this.name = this.songlist[this.ind].songname;
         this.sing = this.songlist[this.ind].singer[0].name;
         this.songUrls(songId);
+        this.$nextTick(() => {
+          this.scroll();
+        });
       });
     },
   },
   filters: {
     secondsFormat(value) {
-      if (!value) return "";
+      if (!value) return "00:00";
       let interval = Math.floor(value);
       let minute = Math.floor(interval / 60)
         .toString()
@@ -375,12 +478,14 @@ export default {
       }
     },
   },
+  components: {
+    top: require("./components/top.vue").default, //顶部
+  },
 };
 </script>
 
 <style lang="less" scoped>
 .player-wrap {
-  // height: 100vh;
   height: 100%;
 
   .bg_player {
@@ -390,7 +495,6 @@ export default {
     background-position: 50%;
     filter: blur(65px);
     opacity: 0.6;
-    // background-image: url();
   }
   .bg_player_mask {
     background-color: rgba(0, 0, 0, 0.35);
@@ -401,50 +505,19 @@ export default {
     display: flex;
     flex-direction: column;
     position: relative;
-    .top {
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      .logo {
-        img {
-          opacity: 0.3;
-          &:hover {
-            opacity: 1;
-          }
-        }
-      }
-      .info {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        img {
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          margin-right: 20px;
-        }
-        span {
-          font-size: 12px;
-          color: #ccc;
-        }
-      }
-    }
+
     .player-main {
       flex: 1;
       margin: 0 7.638889%;
       display: flex;
-      // flex-direction: column;
+
       justify-content: space-between;
       overflow: hidden;
-      // .player__bd {
-      //   display: flex;
-      //   justify-content: space-between;
-      //   // flex: 1;
-      //   height: 100%;
+
       .bd_left {
         display: flex;
         flex-direction: column;
+        position: relative;
         .mod_songlist_toolbar {
           display: flex;
           margin-bottom: 30px;
@@ -472,6 +545,7 @@ export default {
         }
         .sb_main {
           overflow: auto;
+
           .header {
             border-top: 1px solid rgba(224, 224, 224, 0.2);
             padding-left: 40px !important;
@@ -494,6 +568,7 @@ export default {
             color: #ccc;
             font-size: 14px;
             border-bottom: 1px solid rgba(225, 225, 225, 0.2);
+            box-sizing: border-box;
             .num {
               width: 36px;
               text-align: center;
@@ -589,9 +664,22 @@ export default {
           &::-webkit-scrollbar-track {
             border-radius: 5px;
           }
+          .tick {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            background-color: rgba(250, 250, 250, 0.3);
+            border-radius: 50%;
+            i {
+              opacity: 0.5;
+            }
+          }
         }
       }
-      // }
     }
     .player-ft {
       margin: 0 7.638889%;
@@ -673,7 +761,6 @@ export default {
           border-radius: 2px;
           position: relative;
           .slider__bar {
-            width: 30%;
             height: 3px;
             background-color: #fff;
             position: absolute;

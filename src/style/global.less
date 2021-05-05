@@ -33,3 +33,30 @@ a {
   left: 0;
   top: 0;
 }
+
+.loading {
+  display: inline-block;
+  animation: loading 1s linear infinite;
+}
+@keyframes loading {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  50% {
+    -webkit-transform: rotate(180deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+.loadingAnimation {
+  animation: heart 1s linear alternate-reverse infinite;
+}
+@keyframes heart {
+  0% {
+    opacity: 0.1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
