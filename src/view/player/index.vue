@@ -8,104 +8,21 @@
     <div class="player-box w100h100 left0top0">
       <top></top>
       <div class="player-main">
-        <div :class="['bd_left', model ? 'opacity' : '']">
-          <div class="mod_songlist_toolbar">歌单列表</div>
-          <div class="sb_main" ref="main">
-            <div class="header item-box">
-              <div class="num"></div>
-              <div class="name-box">歌曲</div>
-              <div class="sing">歌手</div>
-              <div class="time-box">时长</div>
-            </div>
-            <div
-              :class="[
-                'item-box',
-                audio.palyState && index == ind ? 'paly' : '',
-                audio.loading && index == ind ? 'loadingAnimation' : '',
-              ]"
-              v-for="(item, index) in songlist"
-              :key="index"
-              @dblclick="songPlay(item, index)"
-            >
-              <div class="num">
-                <i
-                  class="iconfont icon-jiazai pointer loading"
-                  v-if="audio.loading && index == ind"
-                ></i>
-                <template
-                  v-else-if="
-                    (audio.palyState && index != ind) ||
-                    audio.loading ||
-                    !audio.palyState
-                  "
-                  >{{ index + 1 }}</template
-                >
-                <span
-                  class="paly"
-                  v-if="!audio.loading && index == ind && audio.palyState"
-                ></span>
-              </div>
-              <div class="name-box">
-                <span class="name">{{ item.songname }}</span>
-                <span class="btn-box">
-                  <span
-                    class="btn pointer"
-                    v-if="audio.palyState && index == ind"
-                    @click="audio.palyState = false"
-                  >
-                    <i class="iconfont icon-zanting"></i>
-                  </span>
-                  <span
-                    class="btn pointer"
-                    v-else
-                    @click="songPlay(item, index)"
-                  >
-                    <i class="iconfont icon-play"></i>
-                  </span>
-                </span>
-              </div>
-              <div class="sing">
-                <span class="pointer">{{ item.singer[0].name }}</span>
-              </div>
-              <div class="time-box">
-                <span class="time">{{ item.interval | secondsFormat }}</span>
-                <span class="delete-btn pointer">
-                  <i class="iconfont icon-shanchu"></i>
-                </span>
-              </div>
-            </div>
-            <div class="tick" v-if="tick" @click="tickClick">
-              <i class="iconfont icon-ico_qiyeF9_baxin2x pointer"></i>
-            </div>
-          </div>
-        </div>
-        <div :class="['bd_right', model ? 'model' : '']">
-          <div class="songInfo" v-show="!model">
-            <img :src="imgUrl" alt="" />
-            <div>歌曲名：{{ name }}</div>
-            <div>歌手名：{{ sing }}</div>
-            <div>专辑名：{{ album }}</div>
-          </div>
-          <div class="songLyric">
-            <ul
-              ref="lyricUL"
-              :style="{ transform: `translateY(${transform}px)` }"
-            >
-              <li
-                v-for="(item, i) in lyricsObjArr"
-                :style="{
-                  color: lyricIndex === i ? 'skyblue' : '#ded9d9',
-                  fontSize: lyricIndex === i ? '18px' : '14px',
-                }"
-                :key="item.uid"
-                :data-index="i"
-                ref="lyric"
-              >
-                {{ item.lyric }}
-              </li>
-            </ul>
-          </div>
-        </div>
+        <songLists
+          :model="model"
+          :audio="audio"
+          :ind="ind"
+          :songlist="songlist"
+          @songPlay="songPlay"
+          ref="songLists"
+        ></songLists>
+        <lyric
+          :model="model"
+          :imgUrl="imgUrl"
+          :songInfo="songInfo"
+          :currentTime="audio.currentTime"
+          :lyricsObjArr="lyricsObjArr"
+        ></lyric>
       </div>
       <div class="player-ft">
         <div class="left">
@@ -132,7 +49,7 @@
         </div>
         <div class="middle">
           <div class="m_top">
-            <span>{{ name }} - {{ sing }}</span>
+            <span>{{ songInfo.name }} - {{ songInfo.sing }}</span>
             <span>
               {{ audio.currentTime | secondsFormat }} /
               {{ audio.duration | secondsFormat }}</span
@@ -156,9 +73,6 @@
               @click="palyTyoe"
             ></i
           ></template>
-
-          <!-- <i class="iconfont icon-pinglun pointer"></i>-->
-          <!-- <i class="iconfont icon-shoucang pointer"></i> -->
           <div
             :class="['modelBtn', 'pointer', model ? 'on' : '']"
             @click="model = !model"
@@ -217,27 +131,25 @@ export default {
       songlist: [], //歌单列表
       ind: 0, //第几首歌
       imgUrl: "", //背景虚化图
-      name: "", //歌名
-      sing: "", //歌手名
-      album: "",
+      songInfo: {
+        name: "", //歌名
+        sing: "", //歌手名
+        album: "",
+      },
       lyricsObjArr: [],
-      lyricIndex: 0,
-      transform: 170,
       audio: {
         palyState: true, //播放状态
         audioUrl: "", //当前播放的音乐链接
         currentTime: 0, //当前播放的进度
         duration: 0, //当前歌曲的总长度
         width: 0, //歌曲播放进度条宽度
-        volume: 0, //音量
+        volume: 1, //音量
         muted: false, //是否静音
         loop: false, //是否循环播放
         loading: false, //加载
       },
       type: 0, //播放类型,顺序，单曲，随机
       indList: [], //播放过的歌曲
-      tick: false, //定位
-      scrollTop: 0, //歌单列表的位置
       typeList: [
         {
           iconfont: "icon-xunhuan",
@@ -269,7 +181,6 @@ export default {
   },
   mounted() {
     this.getSongList();
-    this.audio.volume = this.$refs.audio.volume;
   },
   methods: {
     volumeSlider(event) {
@@ -337,6 +248,7 @@ export default {
       this.audio.currentTime = (this.audio.width / 100) * this.audio.duration;
       this.$refs.audio.currentTime = this.audio.currentTime;
     },
+
     play() {
       //音乐开始播放了
       this.audio.palyState = true;
@@ -363,15 +275,6 @@ export default {
       let currentTime = e.target.currentTime;
       this.audio.currentTime = currentTime;
       this.audio.width = (currentTime / this.audio.duration) * 100;
-      for (let i = 0; i < this.lyricsObjArr.length; i++) {
-        if (currentTime > parseInt(this.lyricsObjArr[i].time)) {
-          const index = this.$refs.lyric[i].dataset.index;
-          if (i === parseInt(index)) {
-            this.lyricIndex = i;
-            this.transform = 170 - 34 * (i + 1);
-          }
-        }
-      }
     },
     palyTyoe() {
       //播放类型
@@ -385,6 +288,11 @@ export default {
       } else {
         this.audio.loop = false;
       }
+    },
+    setSongInfo() {
+      this.songInfo.name = this.songlist[this.ind].songname;
+      this.songInfo.sing = this.songlist[this.ind].singer[0].name;
+      this.songInfo.album = this.songlist[this.ind].albumname;
     },
     prevSong() {
       //上一首
@@ -401,11 +309,12 @@ export default {
         }
         this.randomPlay();
       }
-      this.scroll();
+      // this.scroll();
+       this.$nextTick(() => {
+          this.$refs.songLists.scroll();
+        });
       let id = this.songlist[this.ind].songmid;
-      this.name = this.songlist[this.ind].songname;
-      this.sing = this.songlist[this.ind].singer[0].name;
-      this.album = this.songlist[this.ind].albumname;
+      this.setSongInfo();
       this.songUrls(id);
     },
     nextSong(next) {
@@ -424,34 +333,15 @@ export default {
       if (this.type != 1) {
         this.indList.push(this.ind);
       }
-      this.scroll();
+      // this.scroll();
+       this.$nextTick(() => {
+          this.$refs.songLists.scroll();
+        });
       let id = this.songlist[this.ind].songmid;
-      this.name = this.songlist[this.ind].songname;
-      this.sing = this.songlist[this.ind].singer[0].name;
-      this.album = this.songlist[this.ind].albumname;
+      this.setSongInfo();
       this.songUrls(id);
     },
-    scroll(click) {
-      //播放歌曲定位事件
-      let childEl = this.$refs.main.children[this.ind + 1].offsetTop;
-      let parentEl = this.$refs.main.offsetTop;
-      this.scrollTop = childEl - parentEl - 55;
-      if (!click) {
-        this.$refs.main.scrollTop = this.scrollTop;
-      }
-      this.$refs.main.addEventListener("scroll", (e) => {
-        let f = e.target.scrollTop;
-        if (f - this.scrollTop >= 100 || this.scrollTop - f >= 100) {
-          this.tick = true;
-        } else {
-          this.tick = false;
-        }
-      });
-    },
-    tickClick() {
-      //在播放歌曲定位事件
-      this.$refs.main.scrollTop = this.scrollTop;
-    },
+
     randomPlay() {
       //随机播放
       if (this.type == 2) {
@@ -468,7 +358,7 @@ export default {
       //歌曲播放结束
       this.nextSong();
     },
-    songPlay(item, index) {
+    songPlay(index) {
       //双击听歌
       if (index == this.ind && this.audio.loading) {
         return;
@@ -484,11 +374,9 @@ export default {
       if (index != this.ind) {
         this.ind = index;
         this.indList.push(this.ind);
-        this.scroll("click");
-        let id = item.songmid;
-        this.name = this.songlist[this.ind].songname;
-        this.sing = this.songlist[this.ind].singer[0].name;
-        this.album = this.songlist[this.ind].albumname;
+        // this.scroll("click");
+        let id = this.songlist[this.ind].songmid;
+        this.setSongInfo();
         this.songUrls(id);
       }
     },
@@ -560,7 +448,6 @@ export default {
       }
       return Number(sec + "." + ms);
     },
-
     getSongList() {
       //获取歌单详情
       let id = window.localStorage.getItem("songListId");
@@ -568,27 +455,15 @@ export default {
         this.songlist = res.data.songlist.slice(0, 200);
         this.indList.push(this.ind);
         let songId = this.songlist[this.ind].songmid;
-        this.name = this.songlist[this.ind].songname;
-        this.sing = this.songlist[this.ind].singer[0].name;
-        this.album = this.songlist[this.ind].albumname;
+        this.setSongInfo();
         this.songUrls(songId);
         this.$nextTick(() => {
-          this.scroll();
+          this.$refs.songLists.scroll();
         });
       });
     },
   },
-  filters: {
-    secondsFormat(value) {
-      if (!value) return "00:00";
-      let interval = Math.floor(value);
-      let minute = Math.floor(interval / 60)
-        .toString()
-        .padStart(2, "0");
-      let second = (interval % 60).toString().padStart(2, "0");
-      return `${minute}:${second}`;
-    },
-  },
+
   watch: {
     "audio.palyState"(val) {
       if (val) {
@@ -600,6 +475,8 @@ export default {
   },
   components: {
     top: require("./components/top.vue").default, //顶部
+    songLists: require("./components/songList.vue").default, //歌曲列表
+    lyric: require("./components/lyric.vue").default, //歌词
   },
 };
 </script>
@@ -633,200 +510,8 @@ export default {
       position: relative;
       justify-content: space-between;
       overflow: hidden;
-
-      .bd_left {
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        // opacity: 0;
-
-        flex: 1;
-        .mod_songlist_toolbar {
-          // display: flex;
-          margin-bottom: 30px;
-          line-height: 38px;
-          font-size: 20px;
-
-          color: #ccc;
-        }
-        .sb_main {
-          overflow: auto;
-
-          .header {
-            border-top: 1px solid rgba(224, 224, 224, 0.2);
-          }
-          .item-box {
-            height: 50px;
-            line-height: 50px;
-            padding-left: 4px;
-            padding-right: 20px;
-            display: flex;
-
-            color: #ccc;
-            font-size: 14px;
-            border-bottom: 1px solid rgba(225, 225, 225, 0.2);
-            box-sizing: border-box;
-            .num {
-              // width: 36px;
-              width: 3%;
-              text-align: center;
-              .paly {
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                background-image: url(https://y.gtimg.cn/mediastyle/yqq/img/wave.gif?max_age=2592000&v=78979d47cc7dc55cab5d36b4c96168d5);
-              }
-            }
-            .name-box {
-              // width: 695px;
-              width: 70%;
-              padding-right: 20px;
-              box-sizing: border-box;
-              display: flex;
-              justify-content: space-between;
-              .name {
-                overflow: hidden; /*超出部分隐藏*/
-                white-space: nowrap; /*不换行*/
-                text-overflow: ellipsis; /*超出部分文字以...显示*/
-              }
-              .btn-box {
-                display: none;
-                .btn {
-                  display: inline-block;
-                  width: 35px;
-                  height: 35px;
-                  text-align: center;
-                  line-height: 35px;
-                  border-radius: 50%;
-                  border: 1px solid #ccc;
-                  &:hover {
-                    color: #fff;
-                    border: 1px solid #fff;
-                  }
-                  & + .btn {
-                    margin-left: 10px;
-                  }
-                }
-              }
-            }
-            .sing {
-              // width: 265px;
-              width: 22%;
-              span {
-                &:hover {
-                  color: #fff;
-                }
-              }
-            }
-            .time-box {
-              // width: 50px;
-              width: 5%;
-              display: flex;
-              align-items: center;
-              .delete-btn {
-                display: none;
-                width: 35px;
-                height: 35px;
-                text-align: center;
-                line-height: 35px;
-                border-radius: 50%;
-                border: 1px solid #ccc;
-                &:hover {
-                  color: #fff;
-                  border: 1px solid #fff;
-                }
-              }
-            }
-            &:hover .time-box > .time {
-              display: none;
-            }
-            &:hover .time-box > .delete-btn {
-              display: inline-block;
-            }
-            &:hover .name-box > .btn-box {
-              display: block;
-            }
-          }
-          .paly {
-            .name {
-              color: #fff;
-            }
-            .pointer {
-              color: #fff;
-            }
-          }
-          &::-webkit-scrollbar {
-            width: 5px;
-          }
-          &::-webkit-scrollbar-thumb {
-            border-radius: 5px;
-            background: rgba(225, 225, 225, 0.4);
-          }
-          &::-webkit-scrollbar-track {
-            border-radius: 5px;
-          }
-          .tick {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 20px;
-            height: 20px;
-            text-align: center;
-            line-height: 20px;
-            background-color: rgba(250, 250, 250, 0.3);
-            border-radius: 50%;
-            i {
-              opacity: 0.5;
-            }
-          }
-        }
-      }
-      .opacity {
-        opacity: 0;
-      }
-      .bd_right {
-        display: flex;
-        flex-direction: column;
-        margin-left: 20px;
-        width: 396px;
-        // width: 100%;
-        // position: absolute;
-        .songInfo {
-          text-align: center;
-          img {
-            width: 186px;
-            height: 186px;
-          }
-          div {
-            font-size: 14px;
-            margin-top: 10px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: #ccc;
-          }
-        }
-        .songLyric {
-          flex: 1;
-          margin-top: 30px;
-          text-align: center;
-          overflow: hidden;
-          ul {
-            list-style: none;
-            transition: all 0.5s;
-            li {
-              font-size: 14px;
-              line-height: 34px;
-              color: #ccc;
-            }
-          }
-        }
-      }
     }
-    .model {
-      position: absolute;
-      width: 100% !important;
-    }
+
     .player-ft {
       margin: 0 7.638889%;
 
