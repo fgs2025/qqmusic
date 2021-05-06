@@ -10,7 +10,8 @@
       <div class="player-main">
         <div class="bd_left">
           <div class="mod_songlist_toolbar">
-            <div class="bar pointer">
+            歌单列表
+            <!-- <div class="bar pointer">
               <i class="iconfont icon-shoucang"></i>
               收藏
             </div>
@@ -22,16 +23,17 @@
             </div>
             <div class="bar pointer">
               <i class="iconfont icon-shanchu"></i>删除
-            </div>
-            <div class="bar pointer">
+            </div> -->
+            <!-- <div class="bar pointer">
               <i class="iconfont icon-qingkong"></i>清空列表
-            </div>
+            </div> -->
           </div>
           <div class="sb_main" ref="main">
             <div class="header item-box">
-              <div class="header-songname">歌曲</div>
-              <div class="header-sing">歌手</div>
-              <div class="header-time">时长</div>
+              <div class="num"></div>
+              <div class="name-box">歌曲</div>
+              <div class="sing">歌手</div>
+              <div class="time-box">时长</div>
             </div>
             <div
               :class="[
@@ -78,9 +80,6 @@
                   >
                     <i class="iconfont icon-play"></i>
                   </span>
-                  <!-- <span class="btn pointer">
-                    <i class="iconfont icon-qingkong"></i>
-                  </span> -->
                 </span>
               </div>
               <div class="sing">
@@ -88,9 +87,9 @@
               </div>
               <div class="time-box">
                 <span class="time">{{ item.interval | secondsFormat }}</span>
-                <span class="delete-btn pointer">
+                <!-- <span class="delete-btn pointer">
                   <i class="iconfont icon-shanchu"></i>
-                </span>
+                </span> -->
               </div>
             </div>
             <div class="tick" v-if="tick" @click="tickClick">
@@ -176,8 +175,9 @@
             ></i
           ></template>
 
-          <i class="iconfont icon-pinglun pointer"></i>
-          <i class="iconfont icon-shoucang pointer"></i>
+          <!-- <i class="iconfont icon-pinglun pointer"></i>-->
+          <!-- <i class="iconfont icon-shoucang pointer"></i> -->
+
           <i class="iconfont icon-xiazai pointer" @click="xiazai"></i>
           <i
             class="iconfont icon-jingyin pointer"
@@ -279,30 +279,8 @@ export default {
   mounted() {
     this.getSongList();
     this.audio.volume = this.$refs.audio.volume;
-    // this.sliderBtn();
   },
   methods: {
-    // sliderBtn() {
-    //   this.slider.width = this.$refs.sliderRunway.offsetWidth;
-    //   this.$refs.sliderButton.addEventListener("mousedown", (e) => {
-    //     let x = e.pageX;
-    //     document.addEventListener("mousemove", (e) => {
-    //       let _x = e.pageX;
-    //       let scale = (_x - x + this.slider.width) / this.slider.width;
-    //       if (scale >= 1) {
-    //         scale = 1;
-    //       }
-    //       if (scale <= 0) {
-    //         scale = 0;
-    //       }
-    //       this.audio.volume = scale;
-    //       // this.$refs.audio.volume = scale;
-    //     });
-    //     document.addEventListener("mouseup", () => {
-    //       document.onmousemove = null;
-    //     });
-    //   });
-    // },
     volumeSlider(event) {
       //音量按下事件
       this.slider.volumeStartX = event.clientX;
@@ -574,12 +552,18 @@ export default {
       const regMin = /.*:/;
       const regSec = /:.*\./;
       const regMs = /\./;
+      let sec = "";
+      let ms = "";
       const min = parseInt(time.match(regMin)[0].slice(0, 2));
-      let sec = parseInt(time.match(regSec)[0].slice(1, 3));
-      const ms = time.slice(
-        time.match(regMs).index + 1,
-        time.match(regMs).index + 3
-      );
+      if (time.match(regSec)) {
+        sec = parseInt(time.match(regSec)[0].slice(1, 3));
+      }
+      if (time.match(regMs) && time.match(regMs)) {
+        ms = time.slice(
+          time.match(regMs).index + 1,
+          time.match(regMs).index + 3
+        );
+      }
       if (min !== 0) {
         sec += min * 60;
       }
@@ -590,7 +574,7 @@ export default {
       //获取歌单详情
       let id = window.localStorage.getItem("songListId");
       songlist(id).then((res) => {
-        this.songlist = res.data.songlist.slice(0, 50);
+        this.songlist = res.data.songlist.slice(0, 200);
         this.indList.push(this.ind);
         let songId = this.songlist[this.ind].songmid;
         this.name = this.songlist[this.ind].songname;
@@ -632,7 +616,6 @@ export default {
 <style lang="less" scoped>
 .player-wrap {
   height: 100%;
-
   .bg_player {
     z-index: 1;
     background-repeat: no-repeat;
@@ -664,47 +647,42 @@ export default {
         display: flex;
         flex-direction: column;
         position: relative;
-        margin-right: 20px;
+
+        flex: 1;
         .mod_songlist_toolbar {
-          display: flex;
+          // display: flex;
           margin-bottom: 30px;
-          .bar {
-            padding: 0 23px;
-            height: 38px;
-            line-height: 38px;
-            border: 1px solid rgba(244, 244, 244, 0.3);
-            min-width: 122px;
-            text-align: center;
-            box-sizing: border-box;
-            font-size: 14px;
-            color: #ccc;
-            i {
-              margin-right: 3px;
-            }
-            &:hover {
-              border-color: #fff;
-              color: #fff;
-            }
-            & + .bar {
-              margin-left: 40px;
-            }
-          }
+          line-height: 38px;
+          font-size: 20px;
+          // align-items: center;
+          color: #ccc;
+          // .bar {
+          //   padding: 0 23px;
+          //   height: 38px;
+          //   line-height: 38px;
+          //   border: 1px solid rgba(244, 244, 244, 0.3);
+          //   min-width: 122px;
+          //   text-align: center;
+          //   box-sizing: border-box;
+          //   font-size: 14px;
+          //   color: #ccc;
+          //   i {
+          //     margin-right: 3px;
+          //   }
+          //   &:hover {
+          //     border-color: #fff;
+          //     color: #fff;
+          //   }
+          //   & + .bar {
+          //     margin-left: 40px;
+          //   }
+          // }
         }
         .sb_main {
           overflow: auto;
 
           .header {
             border-top: 1px solid rgba(224, 224, 224, 0.2);
-            padding-left: 40px !important;
-            .header-songname {
-              width: 695px;
-            }
-            .header-sing {
-              width: 265px;
-            }
-            .header-time {
-              width: 50px;
-            }
           }
           .item-box {
             height: 50px;
@@ -712,12 +690,14 @@ export default {
             padding-left: 4px;
             padding-right: 20px;
             display: flex;
+
             color: #ccc;
             font-size: 14px;
             border-bottom: 1px solid rgba(225, 225, 225, 0.2);
             box-sizing: border-box;
             .num {
-              width: 36px;
+              // width: 36px;
+              width: 3%;
               text-align: center;
               .paly {
                 display: inline-block;
@@ -727,7 +707,8 @@ export default {
               }
             }
             .name-box {
-              width: 695px;
+              // width: 695px;
+              width: 70%;
               padding-right: 20px;
               box-sizing: border-box;
               display: flex;
@@ -758,7 +739,8 @@ export default {
               }
             }
             .sing {
-              width: 265px;
+              // width: 265px;
+              width: 22%;
               span {
                 &:hover {
                   color: #fff;
@@ -766,7 +748,8 @@ export default {
               }
             }
             .time-box {
-              width: 50px;
+              // width: 50px;
+              width: 5%;
               display: flex;
               align-items: center;
               .delete-btn {
@@ -783,9 +766,9 @@ export default {
                 }
               }
             }
-            &:hover .time-box > .time {
-              display: none;
-            }
+            // &:hover .time-box > .time {
+            //   display: none;
+            // }
             &:hover .time-box > .delete-btn {
               display: inline-block;
             }
@@ -828,11 +811,11 @@ export default {
         }
       }
       .bd_right {
-        // flex: 1;
-        // width: 400px;
-        width: 340px;
+        display: flex;
+        flex-direction: column;
+        margin-left: 20px;
+        width: 396px;
         .songInfo {
-          width: 100%;
           text-align: center;
           img {
             width: 186px;
@@ -856,7 +839,6 @@ export default {
             list-style: none;
             transition: all 0.5s;
             li {
-              // height: 34px;
               font-size: 14px;
               line-height: 34px;
               color: #ccc;
@@ -867,7 +849,7 @@ export default {
     }
     .player-ft {
       margin: 0 7.638889%;
-      // width: 100%;
+
       height: 11%;
       display: flex;
       align-items: center;
@@ -937,9 +919,11 @@ export default {
             margin-left: 20px;
           }
         }
+
         .slider__runway {
           margin-left: 10px;
-          width: 100%;
+          // width: 100%;
+          flex: 1;
           height: 3px;
           background-color: rgba(204, 204, 204, 0.5);
           border-radius: 2px;
