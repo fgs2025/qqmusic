@@ -31,7 +31,17 @@ export default {
 <style lang="less">
 @import url(./style/global.less);
 @import url(./style/iconfont.css);
-#app{
+#app {
   height: 100vh;
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background: rgba(225, 225, 225, 0.4);
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: 5px;
+  }
 }
 </style>

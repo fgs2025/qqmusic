@@ -98,7 +98,33 @@
             </div>
           </div>
         </div>
-        <div class="bd_right">2</div>
+        <div class="bd_right">
+          <div class="songInfo">
+            <img :src="imgUrl" alt="" />
+            <div>歌曲名：{{ name }}</div>
+            <div>歌手名：{{ sing }}</div>
+            <div>专辑名：{{ album }}</div>
+          </div>
+          <div class="songLyric">
+            <ul
+              ref="lyricUL"
+              :style="{ transform: `translateY(${transform}px)` }"
+            >
+              <li
+                v-for="(item, i) in lyricsObjArr"
+                :style="{
+                  color: lyricIndex === i ? 'skyblue' : '#ded9d9',
+                  fontSize: lyricIndex === i ? '18px' : '14px',
+                }"
+                :key="item.uid"
+                :data-index="i"
+                ref="lyric"
+              >
+                {{ item.lyric }}
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
       <div class="player-ft">
         <div class="left">
@@ -194,7 +220,7 @@
 
 <script>
 import { songlist } from "@/api/songList.js";
-import { songUrls, song, songUrl } from "@/api/song.js";
+import { songUrls, song, songUrl, songLyric } from "@/api/song.js";
 export default {
   data() {
     return {
@@ -203,6 +229,10 @@ export default {
       imgUrl: "", //背景虚化图
       name: "", //歌名
       sing: "", //歌手名
+      album: "",
+      lyricsObjArr: [],
+      lyricIndex: 0,
+      transform: 170,
       audio: {
         palyState: true, //播放状态
         audioUrl: "", //当前播放的音乐链接
@@ -364,6 +394,15 @@ export default {
       let currentTime = e.target.currentTime;
       this.audio.currentTime = currentTime;
       this.audio.width = (currentTime / this.audio.duration) * 100;
+      for (let i = 0; i < this.lyricsObjArr.length; i++) {
+        if (currentTime > parseInt(this.lyricsObjArr[i].time)) {
+          const index = this.$refs.lyric[i].dataset.index;
+          if (i === parseInt(index)) {
+            this.lyricIndex = i;
+            this.transform = 170 - 34 * (i + 1);
+          }
+        }
+      }
     },
     palyTyoe() {
       //播放类型
@@ -397,6 +436,7 @@ export default {
       let id = this.songlist[this.ind].songmid;
       this.name = this.songlist[this.ind].songname;
       this.sing = this.songlist[this.ind].singer[0].name;
+      this.album = this.songlist[this.ind].albumname;
       this.songUrls(id);
     },
     nextSong(next) {
@@ -419,6 +459,7 @@ export default {
       let id = this.songlist[this.ind].songmid;
       this.name = this.songlist[this.ind].songname;
       this.sing = this.songlist[this.ind].singer[0].name;
+      this.album = this.songlist[this.ind].albumname;
       this.songUrls(id);
     },
     scroll(click) {
@@ -478,6 +519,7 @@ export default {
         let id = item.songmid;
         this.name = this.songlist[this.ind].songname;
         this.sing = this.songlist[this.ind].singer[0].name;
+        this.album = this.songlist[this.ind].albumname;
         this.songUrls(id);
       }
     },
@@ -498,12 +540,52 @@ export default {
           }, 5000);
         }
       });
+      songLyric(id).then((res) => {
+        this.lyricsObjArr = [];
+        let lyric = res.data.lyric;
+        const regNewLine = /\n/;
+        const lineArr = lyric.split(regNewLine); // 每行歌词的数组
+        const regTime = /\[\d{2}:\d{2}.\d{2,3}\]/;
+        lineArr.forEach((item) => {
+          if (item === "") return;
+          const obj = {};
+          const time = item.match(regTime);
+          obj.lyric =
+            item.split("]")[1].trim() === "" ? "" : item.split("]")[1].trim();
+          obj.time = time
+            ? this.formatLyricTime(time[0].slice(1, time[0].length - 1))
+            : 0;
+          obj.uid = Math.random().toString().slice(-6);
+          if (obj.lyric === "") {
+            return;
+          } else {
+            this.lyricsObjArr.push(obj);
+          }
+        });
+      });
       //获取背景虚化图
       song(id).then((res) => {
         let mid = res.data.track_info.album.mid;
         this.imgUrl = `https://y.gtimg.cn/music/photo_new/T002R300x300M000${mid}.jpg`;
       });
     },
+    formatLyricTime(time) {
+      // 格式化歌词的时间 转换成 sss:ms
+      const regMin = /.*:/;
+      const regSec = /:.*\./;
+      const regMs = /\./;
+      const min = parseInt(time.match(regMin)[0].slice(0, 2));
+      let sec = parseInt(time.match(regSec)[0].slice(1, 3));
+      const ms = time.slice(
+        time.match(regMs).index + 1,
+        time.match(regMs).index + 3
+      );
+      if (min !== 0) {
+        sec += min * 60;
+      }
+      return Number(sec + "." + ms);
+    },
+
     getSongList() {
       //获取歌单详情
       let id = window.localStorage.getItem("songListId");
@@ -513,6 +595,7 @@ export default {
         let songId = this.songlist[this.ind].songmid;
         this.name = this.songlist[this.ind].songname;
         this.sing = this.songlist[this.ind].singer[0].name;
+        this.album = this.songlist[this.ind].albumname;
         this.songUrls(songId);
         this.$nextTick(() => {
           this.scroll();
@@ -581,6 +664,7 @@ export default {
         display: flex;
         flex-direction: column;
         position: relative;
+        margin-right: 20px;
         .mod_songlist_toolbar {
           display: flex;
           margin-bottom: 30px;
@@ -739,6 +823,43 @@ export default {
             border-radius: 50%;
             i {
               opacity: 0.5;
+            }
+          }
+        }
+      }
+      .bd_right {
+        // flex: 1;
+        // width: 400px;
+        width: 340px;
+        .songInfo {
+          width: 100%;
+          text-align: center;
+          img {
+            width: 186px;
+            height: 186px;
+          }
+          div {
+            font-size: 14px;
+            margin-top: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #ccc;
+          }
+        }
+        .songLyric {
+          flex: 1;
+          margin-top: 30px;
+          text-align: center;
+          overflow: hidden;
+          ul {
+            list-style: none;
+            transition: all 0.5s;
+            li {
+              // height: 34px;
+              font-size: 14px;
+              line-height: 34px;
+              color: #ccc;
             }
           }
         }

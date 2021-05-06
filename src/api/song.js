@@ -32,3 +32,13 @@ export const songUrl = function (songmid) {
     })
 };
 
+export const songLyric = function (songmid) {
+    return instance({
+        url: '/lyric',
+        method: 'get',
+        params: {
+             songmid
+        }
+    })
+};
+
