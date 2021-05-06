@@ -8,26 +8,8 @@
     <div class="player-box w100h100 left0top0">
       <top></top>
       <div class="player-main">
-        <div class="bd_left">
-          <div class="mod_songlist_toolbar">
-            歌单列表
-            <!-- <div class="bar pointer">
-              <i class="iconfont icon-shoucang"></i>
-              收藏
-            </div>
-            <div class="bar pointer">
-              <i class="iconfont icon-tianjia"></i>添加到
-            </div>
-            <div class="bar pointer">
-              <i class="iconfont icon-xiazai"></i>下载
-            </div>
-            <div class="bar pointer">
-              <i class="iconfont icon-shanchu"></i>删除
-            </div> -->
-            <!-- <div class="bar pointer">
-              <i class="iconfont icon-qingkong"></i>清空列表
-            </div> -->
-          </div>
+        <div :class="['bd_left', model ? 'opacity' : '']">
+          <div class="mod_songlist_toolbar">歌单列表</div>
           <div class="sb_main" ref="main">
             <div class="header item-box">
               <div class="num"></div>
@@ -87,9 +69,9 @@
               </div>
               <div class="time-box">
                 <span class="time">{{ item.interval | secondsFormat }}</span>
-                <!-- <span class="delete-btn pointer">
+                <span class="delete-btn pointer">
                   <i class="iconfont icon-shanchu"></i>
-                </span> -->
+                </span>
               </div>
             </div>
             <div class="tick" v-if="tick" @click="tickClick">
@@ -97,8 +79,8 @@
             </div>
           </div>
         </div>
-        <div class="bd_right">
-          <div class="songInfo">
+        <div :class="['bd_right', model ? 'model' : '']">
+          <div class="songInfo" v-show="!model">
             <img :src="imgUrl" alt="" />
             <div>歌曲名：{{ name }}</div>
             <div>歌手名：{{ sing }}</div>
@@ -177,7 +159,15 @@
 
           <!-- <i class="iconfont icon-pinglun pointer"></i>-->
           <!-- <i class="iconfont icon-shoucang pointer"></i> -->
-
+          <div
+            :class="['modelBtn', 'pointer', model ? 'on' : '']"
+            @click="model = !model"
+          >
+            <div class="btn">
+              <span class="btn-span">{{ model ? "ON" : "OFF" }}</span>
+            </div>
+            <span class="text">纯净</span>
+          </div>
           <i class="iconfont icon-xiazai pointer" @click="xiazai"></i>
           <i
             class="iconfont icon-jingyin pointer"
@@ -274,6 +264,7 @@ export default {
         musicBeginX: 0, //音乐进度条当前的位置
       },
       timer: null,
+      model: false,
     };
   },
   mounted() {
@@ -639,7 +630,7 @@ export default {
       flex: 1;
       margin: 0 7.638889%;
       display: flex;
-
+      position: relative;
       justify-content: space-between;
       overflow: hidden;
 
@@ -647,6 +638,7 @@ export default {
         display: flex;
         flex-direction: column;
         position: relative;
+        // opacity: 0;
 
         flex: 1;
         .mod_songlist_toolbar {
@@ -654,29 +646,8 @@ export default {
           margin-bottom: 30px;
           line-height: 38px;
           font-size: 20px;
-          // align-items: center;
+
           color: #ccc;
-          // .bar {
-          //   padding: 0 23px;
-          //   height: 38px;
-          //   line-height: 38px;
-          //   border: 1px solid rgba(244, 244, 244, 0.3);
-          //   min-width: 122px;
-          //   text-align: center;
-          //   box-sizing: border-box;
-          //   font-size: 14px;
-          //   color: #ccc;
-          //   i {
-          //     margin-right: 3px;
-          //   }
-          //   &:hover {
-          //     border-color: #fff;
-          //     color: #fff;
-          //   }
-          //   & + .bar {
-          //     margin-left: 40px;
-          //   }
-          // }
         }
         .sb_main {
           overflow: auto;
@@ -766,9 +737,9 @@ export default {
                 }
               }
             }
-            // &:hover .time-box > .time {
-            //   display: none;
-            // }
+            &:hover .time-box > .time {
+              display: none;
+            }
             &:hover .time-box > .delete-btn {
               display: inline-block;
             }
@@ -810,11 +781,16 @@ export default {
           }
         }
       }
+      .opacity {
+        opacity: 0;
+      }
       .bd_right {
         display: flex;
         flex-direction: column;
         margin-left: 20px;
         width: 396px;
+        // width: 100%;
+        // position: absolute;
         .songInfo {
           text-align: center;
           img {
@@ -846,6 +822,10 @@ export default {
           }
         }
       }
+    }
+    .model {
+      position: absolute;
+      width: 100% !important;
     }
     .player-ft {
       margin: 0 7.638889%;
@@ -919,7 +899,51 @@ export default {
             margin-left: 20px;
           }
         }
+        .modelBtn {
+          width: 70px;
+          height: 26px;
+          margin: 0 20px;
+          border-radius: 20px;
+          border: 2px solid #ccc;
+          position: relative;
 
+          .btn {
+            width: 20px;
+            height: 20px;
+            background-color: #ccc;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 5px;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            transition: all 1s;
+            .btn-span {
+              display: inline-block;
+              font-size: 12px;
+              transform: scale(0.7);
+            }
+          }
+          .text {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ccc;
+            transition: all 1s;
+          }
+        }
+        .on {
+          .btn {
+            left: 45px;
+          }
+          .text {
+            left: 10px;
+          }
+        }
         .slider__runway {
           margin-left: 10px;
           // width: 100%;
