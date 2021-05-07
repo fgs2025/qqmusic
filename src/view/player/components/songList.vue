@@ -1,69 +1,74 @@
 <template>
   <div :class="['bd_left', model ? 'opacity' : '']">
-    <div class="mod_songlist_toolbar">歌单列表</div>
+    <div class="mod_songlist_toolbar">
+      <div class="bar pointer" @click="empty">清空列表</div>
+    </div>
     <div class="sb_main" ref="main">
-      <div class="header item-box">
-        <div class="num"></div>
-        <div class="name-box">歌曲</div>
-        <div class="sing">歌手</div>
-        <div class="time-box">时长</div>
-      </div>
-      <div
-        :class="[
-          'item-box',
-          audio.palyState && index == ind ? 'paly' : '',
-          audio.loading && index == ind ? 'loadingAnimation' : '',
-        ]"
-        v-for="(item, index) in songlist"
-        :key="index"
-        @dblclick="songPlay(index)"
-      >
-        <div class="num">
-          <i
-            class="iconfont icon-jiazai pointer loading"
-            v-if="audio.loading && index == ind"
-          ></i>
-          <template
-            v-else-if="
-              (audio.palyState && index != ind) ||
-              audio.loading ||
-              !audio.palyState
-            "
-            >{{ index + 1 }}</template
-          >
-          <span
-            class="paly"
-            v-if="!audio.loading && index == ind && audio.palyState"
-          ></span>
+      <template v-if="songlist.length > 0">
+        <div class="header item-box">
+          <div class="num"></div>
+          <div class="name-box">歌曲</div>
+          <div class="sing">歌手</div>
+          <div class="time-box">时长</div>
         </div>
-        <div class="name-box">
-          <span class="name">{{ item.songname }}</span>
-          <span class="btn-box">
-            <span
-              class="btn pointer"
-              v-if="audio.palyState && index == ind"
-              @click="palyStateChange"
+        <div
+          :class="[
+            'item-box',
+            audio.palyState && index == ind ? 'paly' : '',
+            audio.loading && index == ind ? 'loadingAnimation' : '',
+          ]"
+          v-for="(item, index) in songlist"
+          :key="index"
+          @dblclick="songPlay(index)"
+        >
+          <div class="num">
+            <i
+              class="iconfont icon-jiazai pointer loading"
+              v-if="audio.loading && index == ind"
+            ></i>
+            <template
+              v-else-if="
+                (audio.palyState && index != ind) ||
+                audio.loading ||
+                !audio.palyState
+              "
+              >{{ index + 1 }}</template
             >
-              <i class="iconfont icon-zanting"></i>
+            <span
+              class="paly"
+              v-if="!audio.loading && index == ind && audio.palyState"
+            ></span>
+          </div>
+          <div class="name-box">
+            <span class="name">{{ item.songname }}</span>
+            <span class="btn-box">
+              <span
+                class="btn pointer"
+                v-if="audio.palyState && index == ind"
+                @click="palyStateChange"
+              >
+                <i class="iconfont icon-zanting"></i>
+              </span>
+              <span class="btn pointer" v-else @click="songPlay(index)">
+                <i class="iconfont icon-play"></i>
+              </span>
             </span>
-            <span class="btn pointer" v-else @click="songPlay(index)">
-              <i class="iconfont icon-play"></i>
+          </div>
+          <div class="sing">
+            <span class="pointer">{{ item.singer[0].name }}</span>
+          </div>
+          <div class="time-box">
+            <span class="time">{{ item.interval | secondsFormat }}</span>
+            <span class="delete-btn pointer" @click.stop="deleteSong(index)">
+              <i class="iconfont icon-shanchu"></i>
             </span>
-          </span>
+          </div>
         </div>
-        <div class="sing">
-          <span class="pointer">{{ item.singer[0].name }}</span>
+        <div class="tick" v-if="tick" @click="tickClick">
+          <i class="iconfont icon-ico_qiyeF9_baxin2x pointer"></i>
         </div>
-        <div class="time-box">
-          <span class="time">{{ item.interval | secondsFormat }}</span>
-          <span class="delete-btn pointer">
-            <i class="iconfont icon-shanchu"></i>
-          </span>
-        </div>
-      </div>
-      <div class="tick" v-if="tick" @click="tickClick">
-        <i class="iconfont icon-ico_qiyeF9_baxin2x pointer"></i>
-      </div>
+      </template>
+      <div class="prompt" v-else>暂无歌曲，快去添加歌曲吧</div>
     </div>
   </div>
 </template>
@@ -78,6 +83,12 @@ export default {
     };
   },
   methods: {
+    empty() {
+      this.$emit("empty");
+    },
+    deleteSong(index) {
+      this.$emit("deleteSong", index);
+    },
     scroll(click) {
       //播放歌曲定位事件
       if (this.songlist.length > 0) {
@@ -137,16 +148,32 @@ export default {
 
   flex: 1;
   .mod_songlist_toolbar {
-    // display: flex;
+    display: flex;
     margin-bottom: 30px;
     line-height: 38px;
-    font-size: 20px;
-
+    font-size: 14px;
     color: #ccc;
+    .bar {
+      padding: 0 23px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      &:hover {
+        color: #fff;
+        border-color: #fff;
+      }
+    }
   }
   .sb_main {
     overflow: auto;
+    height: 100%;
+    .prompt {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ccc;
 
+    }
     .header {
       border-top: 1px solid rgba(224, 224, 224, 0.2);
     }

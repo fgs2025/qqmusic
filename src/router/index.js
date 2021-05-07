@@ -12,25 +12,25 @@ const routes = [
     children: [
       {
         path: 'MusicHall',
-        name: '音乐馆',
+        name: 'MusicHall',
         component: () => import('../view/MusicHall/index.vue'),
         redirect: 'MusicHall/index',
         children: [
           {
             path: 'index',
-            name: '首页',
+            name: 'index',
             component: () => import('../view/index/index.vue'),
           },
           {
             path: 'singer',
-            name: '歌手',
+            name: 'singer',
             component: () => import('../view/singer/index.vue'),
           }
         ]
       },
       {
         path: '/MyMusic',
-        name: '我的音乐',
+        name: 'MyMusic',
         component: () => import('../view/MyMusic/index.vue'),
       },
 
@@ -38,7 +38,7 @@ const routes = [
   },
   {
     path: '/player',
-    name: '音乐播放器',
+    name: 'player',
     component: () => import('../view/player/index.vue'),
   }
 ]

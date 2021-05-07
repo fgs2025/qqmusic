@@ -51,7 +51,7 @@
         </div>
         <span class="text">纯净</span>
       </div>
-      <i class="iconfont icon-xiazai pointer" @click="xiazai"></i>
+      <i class="iconfont icon-xiazai pointer" @click="download"></i>
       <i
         class="iconfont icon-jingyin pointer"
         v-if="audio.muted"
@@ -112,71 +112,67 @@ export default {
       this.slider.volumeStartX = event.clientX;
       this.slider.volumeSliderWrap = this.$refs.volumeSliderWrap.offsetWidth;
       this.slider.volumeBeginX = this.audio.volume;
-      document.body.addEventListener("mousemove", this.volumeSlidermove);
-      document.body.addEventListener("mouseup", this.volumeSliderRemove);
-    },
-    volumeSliderRemove() {
-      //音量清除事件
-      document.body.removeEventListener("mousemove", this.volumeSlidermove);
-      document.body.removeEventListener("mouseup", this.volumeSliderRemove);
-    },
-    volumeSlidermove(event) {
-      //音量按下的操作
-      let begin_x = this.slider.volumeBeginX;
-      let scale =
-        begin_x -
-        (this.slider.volumeStartX - event.clientX) /
-          this.slider.volumeSliderWrap;
-      if (scale >= 1) {
-        scale = 1;
-      }
-      if (scale <= 0) {
-        scale = 0;
-      }
-      this.audio.volume = scale;
+      document.onmousemove = (event) => {
+        let begin_x = this.slider.volumeBeginX;
+        let scale =
+          begin_x -
+          (this.slider.volumeStartX - event.clientX) /
+            this.slider.volumeSliderWrap;
+        if (scale >= 1) {
+          scale = 1;
+        }
+        if (scale <= 0) {
+          scale = 0;
+        }
+        this.audio.volume = scale;
+      };
+      document.onmouseup = () => {
+        document.onmousemove = null;
+        document.onmouseup = null;
+      };
     },
 
     musicSlider(event) {
       //音乐进度条按下事件
-      if (!this.audio.loading) {
-        let palyState = false;
-        this.$emit("palyStateChange", palyState);
-        this.slider.musicStartX = event.clientX;
-        this.slider.musicSliderWrap = this.$refs.musicSliderWrap.offsetWidth;
-        this.slider.musicBeginX = this.audio.width;
-        document.body.addEventListener("mousemove", this.musicSliderMove);
-        document.body.addEventListener("mouseup", this.musicSliderRemove);
+      if (this.audio.audioUrl) {
+        if (!this.audio.loading) {
+          let palyState = false;
+          this.$emit("palyStateChange", palyState);
+          this.slider.musicStartX = event.clientX;
+          this.slider.musicSliderWrap = this.$refs.musicSliderWrap.offsetWidth;
+          this.slider.musicBeginX = this.audio.width;
+          document.onmousemove = (event) => {
+            let begin_x = this.slider.musicBeginX;
+            let scale =
+              begin_x -
+              ((this.slider.musicStartX - event.clientX) /
+                this.slider.musicSliderWrap) *
+                100;
+            if (scale >= 100) {
+              scale = 100;
+            }
+            if (scale <= 0) {
+              scale = 0;
+            }
+            this.audio.width = scale;
+            let currentTime = (this.audio.width / 100) * this.audio.duration;
+            this.$emit("currentTimeChange", currentTime);
+          };
+          document.onmouseup = () => {
+            document.onmousemove = null;
+            document.onmouseup = null;
+            let palyState = true;
+            this.$emit("palyStateChange", palyState);
+          };
+        }
       }
-    },
-    musicSliderRemove() {
-      //音乐进度条清除事件
-      document.body.removeEventListener("mousemove", this.musicSliderMove);
-      document.body.removeEventListener("mouseup", this.musicSliderRemove);
-      let palyState = true;
-      this.$emit("palyStateChange", palyState);
-    },
-    musicSliderMove(event) {
-      //音乐进度条的按下操作
-      let begin_x = this.slider.musicBeginX;
-      let scale =
-        begin_x -
-        ((this.slider.musicStartX - event.clientX) /
-          this.slider.musicSliderWrap) *
-          100;
-      if (scale >= 100) {
-        scale = 100;
-      }
-      if (scale <= 0) {
-        scale = 0;
-      }
-      this.audio.width = scale;
-      let currentTime = (this.audio.width / 100) * this.audio.duration;
-      this.$emit("currentTimeChange", currentTime);
     },
 
     palyStateChange() {
-      let palyState = !this.audio.palyState;
-      this.$emit("palyStateChange", palyState);
+      if (this.audio.audioUrl) {
+        let palyState = !this.audio.palyState;
+        this.$emit("palyStateChange", palyState);
+      }
     },
     prevSong() {
       //上一首
@@ -241,12 +237,14 @@ export default {
       this.audio.muted = !this.audio.muted;
     },
 
-    xiazai() {
+    download() {
       //音乐下载
-      let id = this.songlist[this.ind].songmid;
-      songUrl(id).then((res) => {
-        window.open(res.data);
-      });
+      if (this.songlist.length > 0) {
+        let id = this.songlist[this.ind].songmid;
+        songUrl(id).then((res) => {
+          window.open(res.data);
+        });
+      }
     },
 
     modelChange() {

@@ -14,7 +14,9 @@
           :ind="ind"
           :songlist="songlist"
           @nextplay="nextplay"
-          @palyStateChange='palyStateChange'
+          @palyStateChange="palyStateChange"
+          @deleteSong="deleteSong"
+          @empty="empty"
           ref="songLists"
         ></songLists>
         <lyric
@@ -45,8 +47,8 @@
       <audio
         ref="audio"
         :src="audio.audioUrl"
-        autoplay
         :loop="audio.loop"
+        autoplay
         @play="play"
         @loadedmetadata="onLoadedmetadata"
         @timeupdate="timeupdate"
@@ -57,7 +59,6 @@
 </template>
 
 <script>
-import { songlist } from "@/api/songList.js";
 import { songUrls, song, songLyric } from "@/api/song.js";
 export default {
   data() {
@@ -90,9 +91,48 @@ export default {
   },
   mounted() {
     this.getSongList();
+    window.addEventListener("storage", (e) => {
+      this.songlist = [];
+      this.ind = 0;
+      this.indList = [];
+      this.songlist = JSON.parse(e.newValue);
+      let songId = this.songlist[this.ind].songmid;
+      this.songUrls(songId);
+    });
+    if (window.performance.navigation.type == 1) {
+      window.localStorage.setItem("openActive", true);
+    }
+    window.addEventListener("beforeunload", () => {
+      window.localStorage.setItem("songList", JSON.stringify(this.songlist));
+      localStorage.removeItem("openActive");
+    });
   },
   methods: {
+    empty() {
+      this.songlist = [];
+      this.ind = 0; //第几首歌
+      this.imgUrl = ""; //背景虚化图
+      this.songInfo = {
+        name: "", //歌名
+        sing: "", //歌手名
+        album: "",
+      };
+      this.lyric = "";
+      this.audio.audioUrl = "";
+      this.audio.loading = false;
+      this.audio.palyState = false;
+      window.localStorage.setItem("songList", JSON.stringify(this.songlist));
+    },
+    deleteSong(val) {
+      this.songlist.splice(val, 1);
+      this.indList.forEach((row, i) => {
+        if (row == val) {
+          this.indList.splice(i, 1);
+        }
+      });
+    },
     palyStateChange(val) {
+      //接受子组件点击播放暂停按钮的处理
       if (val) {
         this.audio.palyState = val;
         this.$refs.audio.play();
@@ -102,21 +142,28 @@ export default {
       }
     },
     nextplay(val) {
-      this.ind = val;
-      let id = this.songlist[this.ind].songmid;
-      this.songUrls(id);
+      //接受子组件点下一首按钮的处理
+      if (this.songlist.length > 0) {
+        this.ind = val;
+        let id = this.songlist[this.ind].songmid;
+        this.songUrls(id);
+      }
     },
     currentTimeChange(val) {
+      //接受子组件音乐拖动的处理
       this.audio.currentTime = val;
       this.$refs.audio.currentTime = val;
     },
     indListChange(val) {
+      //接受子组件播放过的歌曲数组
       this.indList = val;
     },
     modelChange(val) {
+      //接受子组件纯净模式的变更
       this.model = val;
     },
     typeChange(val) {
+      //接受子组件播放模式的变更
       this.type = val;
     },
     play() {
@@ -177,15 +224,13 @@ export default {
         this.imgUrl = `https://y.gtimg.cn/music/photo_new/T002R300x300M000${mid}.jpg`;
       });
     },
-
     getSongList() {
       //获取歌单详情
-      let id = window.localStorage.getItem("songListId");
-      songlist(id).then((res) => {
-        this.songlist = res.data.songlist.slice(0, 20);
+      this.songlist = JSON.parse(localStorage.getItem("songList"));
+      if (this.songlist.length > 0) {
         let songId = this.songlist[this.ind].songmid;
         this.songUrls(songId);
-      });
+      }
     },
   },
   watch: {

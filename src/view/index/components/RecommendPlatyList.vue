@@ -64,6 +64,7 @@
 <script>
 import { playlistu, playlist } from "@/api/recommend";
 import { swiper } from "@/mixin/swiper.js";
+import { songlist } from "@/api/songList.js";
 export default {
   mixins: [swiper],
   data() {
@@ -157,11 +158,24 @@ export default {
       });
     },
     songListClick(ite) {
-      let routeData = this.$router.resolve({
-        name: "音乐播放器",
+      let openActive = window.localStorage.getItem("openActive");
+      songlist(ite.content_id || ite.tid).then((res) => {
+        let songlist = JSON.parse(localStorage.getItem("songList"));
+        if (!songlist) {
+          songlist = [];
+        }
+        songlist.unshift(...res.data.songlist.slice(0, 10));
+        if (openActive) {
+          window.localStorage.setItem("songList", JSON.stringify(songlist));
+        } else {
+          let routeData = this.$router.resolve({
+            name: "player",
+          });
+          window.open(routeData.href, "_blank");
+          window.localStorage.setItem("openActive", true);
+          window.localStorage.setItem("songList", JSON.stringify(songlist));
+        }
       });
-      window.open(routeData.href, "_blank");
-      window.localStorage.setItem("songListId", ite.content_id || ite.tid);
     },
   },
   components: {

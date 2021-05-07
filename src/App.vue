@@ -43,5 +43,6 @@ export default {
   &::-webkit-scrollbar-track {
     border-radius: 5px;
   }
+  
 }
 </style>
