@@ -42,7 +42,7 @@
             <span
               class="btn pointer"
               v-if="audio.palyState && index == ind"
-              @click="audio.palyState = false"
+              @click="palyStateChange"
             >
               <i class="iconfont icon-zanting"></i>
             </span>
@@ -98,10 +98,27 @@ export default {
       }
     },
     songPlay(index) {
-      this.$emit("songPlay", index);
-      this.$nextTick(() => {
-        this.scroll("click");
-      });
+      //双击听歌
+      if (index == this.ind && this.audio.loading) {
+        return;
+      }
+      if (index == this.ind && this.audio.palyState) {
+        let palyState = false;
+        this.$emit("palyStateChange", palyState);
+        return;
+      }
+      if (index == this.ind && !this.audio.palyState) {
+        let palyState = true;
+        this.$emit("palyStateChange", palyState);
+        return;
+      }
+      if (index != this.ind) {
+        this.$emit("nextplay", index);
+      }
+    },
+    palyStateChange() {
+      let palyState = false;
+      this.$emit("palyStateChange", palyState);
     },
     tickClick() {
       //在播放歌曲定位事件
