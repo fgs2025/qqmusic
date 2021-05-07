@@ -164,7 +164,7 @@ export default {
         if (!songlist) {
           songlist = [];
         }
-        songlist.unshift(...res.data.songlist.slice(0, 10));
+        songlist.unshift(...res.data.songlist.slice(0, 20));
         if (openActive) {
           window.localStorage.setItem("songList", JSON.stringify(songlist));
         } else {
