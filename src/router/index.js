@@ -11,9 +11,9 @@ const routes = [
     redirect: 'MusicHall',
     children: [
       {
-        path: 'MusicHall',
-        name: 'MusicHall',
-        component: () => import('../view/MusicHall/index.vue'),
+        path: 'musicHall',
+        name: 'musicHall',
+        component: () => import('../view/musicHall/index.vue'),
         redirect: 'MusicHall/index',
         children: [
           {
@@ -29,9 +29,9 @@ const routes = [
         ]
       },
       {
-        path: '/MyMusic',
-        name: 'MyMusic',
-        component: () => import('../view/MyMusic/index.vue'),
+        path: '/myMusic',
+        name: 'myMusic',
+        component: () => import('../view/myMusic/index.vue'),
       },
 
     ]
