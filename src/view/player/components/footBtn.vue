@@ -207,12 +207,14 @@ export default {
     randomPlay() {
       //随机播放
       if (this.type == 2) {
-        let pInd = this.inds;
-        let nInd = Math.floor(Math.random() * this.songlist.length);
-        if (nInd == pInd) {
-          this.randomPlay();
-        } else {
-          this.inds = nInd;
+        if (this.songlist.length > 1) {
+          let pInd = this.inds;
+          let nInd = Math.floor(Math.random() * this.songlist.length);
+          if (nInd == pInd) {
+            this.randomPlay();
+          } else {
+            this.inds = nInd;
+          }
         }
       }
     },
@@ -240,7 +242,12 @@ export default {
     download() {
       //音乐下载
       if (this.songlist.length > 0) {
-        let id = this.songlist[this.ind].songmid;
+        let id = "";
+        if (this.songlist[this.ind].songmid) {
+          id = this.songlist[this.ind].songmid;
+        } else {
+          id = this.songlist[this.ind].mid;
+        }
         songUrl(id).then((res) => {
           window.open(res.data);
         });

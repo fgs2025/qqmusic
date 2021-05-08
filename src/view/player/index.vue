@@ -92,17 +92,20 @@ export default {
   mounted() {
     this.getSongList();
     window.addEventListener("storage", (e) => {
-      this.songlist = [];
-      this.ind = 0;
-      this.indList = [];
-      this.songlist = JSON.parse(e.newValue);
-      this.nextplay(this.ind);
+      if (e.key == "songList") {
+        this.songlist = [];
+        this.ind = 0;
+        this.indList = [];
+        this.songlist = JSON.parse(e.newValue);
+        this.nextplay(this.ind);
+      }
     });
     if (window.performance.navigation.type == 1) {
       window.localStorage.setItem("openActive", true);
     }
     window.addEventListener("beforeunload", () => {
       localStorage.removeItem("openActive");
+      window.localStorage.setItem("songList", JSON.stringify(this.songlist));
     });
   },
   methods: {
@@ -245,6 +248,9 @@ export default {
       //   this.songUrls(songId);
       // }
     },
+  },
+  beforeunload(){
+    window.localStorage.setItem("sss", 'ssss');
   },
   watch: {
     "audio.volume"(val) {
