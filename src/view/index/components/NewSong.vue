@@ -1,9 +1,10 @@
 <template>
   <moban class="PlaylistRecommend" :loading="loading">
     <!-- 标题 -->
-    <template slot="title-wrap">歌单推荐</template>
+    <template slot="title-wrap">新歌首发</template>
     <!-- tab点击 -->
     <template slot="tab-wrap">
+      <div class="allBtn pointer" @click="palyAll">播放全部</div>
       <span
         v-for="(item, index) in tabList"
         :key="index"
@@ -12,38 +13,43 @@
         >{{ item.label }}</span
       >
     </template>
-    <!-- 轮播图 -->
     <template slot="swiper">
       <div
+        class="swiper-box"
         :class="['swiper-box', swipeTtransform ? 'swipeTtransform' : '']"
         :style="{ transform: `translateX(-${translateX * i}%)` }"
       >
         <ul v-for="(item, index) in itemlist" :key="index">
-          <li class="item" v-for="(ite, ind) in item" :key="ind">
+          <li class="item" v-for="(ite, inde) in item" :key="inde">
             <div class="img-box">
-              <img :src="ite.cover || ite.cover_url_medium" alt="" />
+              <img :src="ite.album.pmid | imgURl" alt="" />
               <div class="mod_cover__mask"></div>
               <i
                 class="el-icon-video-play item-i"
                 @click="songListClick(ite)"
               ></i>
             </div>
-            <div class="item-title">{{ ite.title }}</div>
-            <div class="magnitude">
-              播放量: {{ ite.listen_num || ite.access_num | PlayNum }} 万
+            <div class="txt-box">
+              <div class="title">
+                <span>{{ ite.name }} {{ ite.subtitle }}</span>
+              </div>
+              <div class="Singer">
+                <span>{{ ite.singer[0].title }}</span>
+              </div>
             </div>
+            <div class="songlist__time">{{ ite.interval | secondsFormat }}</div>
           </li>
         </ul>
       </div>
     </template>
-    <!-- 轮播图指示点 -->
+
     <template v-slot:paging>
       <div class="paging-box">
         <span
           v-for="(item, ind) in length"
           :key="ind"
-          @click="pagingClick(ind)"
           :class="[ind === isActive ? 'active' : '']"
+          @click="pagingClick(ind)"
         ></span></div
     ></template>
     <!-- 右边按钮 -->
@@ -62,56 +68,62 @@
 </template>
 
 <script>
-import { playlistu, playlist } from "@/api/recommend";
+import { newSongs } from "@/api/recommend";
 import { swiper } from "@/mixin/swiper.js";
-import { songlist } from "@/api/songList.js";
+
 export default {
   mixins: [swiper],
   data() {
     return {
       tabList: [
         {
-          label: "为你推荐",
-          id: "",
+          label: "最新",
+          type: "0",
           active: true,
         },
         {
-          label: "官方歌单",
-          id: "3317",
+          label: "内地",
+          type: "1",
           active: false,
         },
         {
-          label: "经典",
-          id: "59",
+          label: "港台",
+          type: "2",
           active: false,
         },
         {
-          label: "情歌",
-          id: "71",
+          label: "欧美",
+          type: "3",
           active: false,
         },
         {
-          label: "网络歌曲",
-          id: "3056",
+          label: "韩国",
+          type: "4",
           active: false,
         },
         {
-          label: "KTY热歌",
-          id: "64",
+          label: "日本",
+          type: "5",
           active: false,
         },
       ],
-      size: 5, //分割二维数组的长度.几个一组
+      size: 9, //分割二维数组的长度.几个一组
       loading: false,
     };
   },
   mounted() {
-    this.playListuInit(); //初始化轮播图列表
+    this.newSong();
   },
-
   methods: {
-    tabClick(item, index) {
-      // tab点击事件
+    newSong(type) {
+      this.loading = true;
+      newSongs(type).then((res) => {
+        this.start_itemlist = res.data.list;
+        this.loading = false;
+        this.initSwiper();
+      });
+    },
+    tabClick(item) {
       if (!item.active) {
         this.tabList.forEach((row) => (row.active = false));
         item.active = true;
@@ -120,39 +132,17 @@ export default {
         setTimeout(() => {
           this.swipeTtransform = true;
         });
-        this.loading = true;
-        //为你推荐接口和按分类推荐接口不同,0为为你推荐接口,其它为按分类接口
-        if (index == 0) {
-          this.playListuInit(); //为你推荐接口
-        } else {
-          this.playList(item.id); //按分类推荐接口
-        }
+        this.newSong(item.type);
       }
     },
-    playListuInit() {
-      //为你推荐接口
-      playlistu().then((res) => {
-        this.start_itemlist = res.data.list;
-        this.loading = false;
-        this.initSwiper();
-      });
-    },
-    playList(id) {
-      //按分类推荐接口
-      playlist(id).then((res) => {
-        this.start_itemlist = res.data.list;
-        this.loading = false;
-        this.initSwiper();
-      });
-    },
-    songListClick(ite) {
-      let openActive = window.localStorage.getItem("openActive");
-      songlist(ite.content_id || ite.tid).then((res) => {
+    palyAll() {
+      if (!this.loading) {
+        let openActive = window.localStorage.getItem("openActive");
         let songlist = JSON.parse(localStorage.getItem("songList"));
         if (!songlist) {
           songlist = [];
         }
-        songlist.unshift(...res.data.songlist.slice(0, 20));
+        songlist.unshift(...this.start_itemlist);
         if (openActive) {
           window.localStorage.setItem("songList", JSON.stringify(songlist));
         } else {
@@ -163,7 +153,30 @@ export default {
           window.localStorage.setItem("openActive", true);
           window.localStorage.setItem("songList", JSON.stringify(songlist));
         }
-      });
+      }
+    },
+    songListClick(ite) {
+      let openActive = window.localStorage.getItem("openActive");
+      let songlist = JSON.parse(localStorage.getItem("songList"));
+      if (!songlist) {
+        songlist = [];
+      }
+      songlist.unshift(ite);
+      if (openActive) {
+        window.localStorage.setItem("songList", JSON.stringify(songlist));
+      } else {
+        let routeData = this.$router.resolve({
+          name: "player",
+        });
+        window.open(routeData.href, "_blank");
+        window.localStorage.setItem("openActive", true);
+        window.localStorage.setItem("songList", JSON.stringify(songlist));
+      }
+    },
+  },
+  filters: {
+    imgURl(val) {
+      return "https://y.gtimg.cn/music/photo_new/T002R90x90M000" + val + ".jpg";
     },
   },
   components: {
@@ -180,80 +193,111 @@ export default {
       color: #31c27c;
     }
   }
+  .allBtn {
+    position: absolute;
+    left: 0;
+    top: -10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    &:hover {
+      background-color: rgba(204, 204, 204, 0.3);
+    }
+  }
   .active {
     color: #31c27c;
   }
   .swiper-box {
     display: flex;
-    margin-top: 10px;
     ul {
       display: flex;
       flex-wrap: wrap;
       flex-shrink: 0;
       width: 1220px;
-      .item {
-        width: 224px;
-        box-sizing: border-box;
-        list-style: none;
-        margin-right: 20px;
-        padding: 10px 0;
-        .img-box {
-          height: 224px;
-          margin-bottom: 20px;
-          cursor: pointer;
-          overflow: hidden;
-          position: relative;
-          img {
-            width: 100%;
-            height: 100%;
-            transition: all 0.75s;
-          }
-          .item-i {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            font-size: 50px;
-            transform: translate(-50%, -50%);
-            opacity: 0;
-            transition: all 0.75s;
-            color: #fff;
-          }
-          .mod_cover__mask {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: #000;
-            opacity: 0;
-            transition: opacity 0.5s;
-          }
-          &:hover img {
-            transform: scale(1.07);
-          }
-          &:hover .item-i {
-            transform: translate(-50%, -50%) scale(1.5);
-            opacity: 1;
-          }
-          &:hover .mod_cover__mask {
-            opacity: 0.2;
-          }
+      margin-top: 40px;
+      align-content: flex-start;
+      position: relative;
+    }
+
+    .item:nth-child(-n + 6) {
+      border-bottom: 1px solid #ccc;
+    }
+    .item {
+      display: flex;
+      margin-right: 25px;
+      padding: 10px 0;
+      .img-box {
+        width: 86px;
+        height: 86px;
+        position: relative;
+        cursor: pointer;
+        overflow: hidden;
+        img {
+          width: 100%;
+          height: 100%;
+          transition: all 0.75s;
         }
-        .item-title {
-          font-size: 14px;
+        .item-i {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          font-size: 50px;
+          transform: translate(-50%, -50%);
+          opacity: 0;
+          transition: all 0.75s;
+          color: #fff;
+        }
+        .mod_cover__mask {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background-color: #000;
+          opacity: 0;
+          transition: opacity 0.5s;
+        }
+        &:hover img {
+          transform: scale(1.07);
+        }
+        &:hover .item-i {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+        &:hover .mod_cover__mask {
+          opacity: 0.2;
+        }
+      }
+      .txt-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        font-size: 14px;
+        margin-left: 10px;
+        width: 190px;
+        .title,
+        .Singer {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          cursor: pointer;
-          &:hover {
-            color: #31c27c;
+          span {
+            cursor: pointer;
+            &:hover {
+              color: #31c27c;
+            }
           }
         }
-        .magnitude {
+        .Singer {
+          color: #999;
           margin-top: 5px;
-          font-size: 14px;
-          color: #ccc;
         }
+      }
+      .songlist__time {
+        display: flex;
+        align-items: center;
+        color: #999;
+        font-size: 14px;
+        margin-left: 58px;
       }
     }
   }

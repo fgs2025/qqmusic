@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const instance = axios.create({//创建axios实例
     baseURL: "/api",
-    timeout: 5000,
+    // timeout: 5000,
 });
 
 instance.interceptors.request.use((config) => {//请求拦截

@@ -40,7 +40,7 @@
             ></span>
           </div>
           <div class="name-box">
-            <span class="name">{{ item.songname }}</span>
+            <span class="name">{{ item.songname || item.name }}</span>
             <span class="btn-box">
               <span
                 class="btn pointer"
@@ -172,7 +172,6 @@ export default {
       align-items: center;
       justify-content: center;
       color: #ccc;
-
     }
     .header {
       border-top: 1px solid rgba(224, 224, 224, 0.2);

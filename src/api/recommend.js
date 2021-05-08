@@ -21,3 +21,16 @@ export const playlist = function (id, pageNo, pageSize) {
     })
 };
 
+export const newSongs = function (type) {
+    if (!type) {
+        type = 0
+    }
+    return instance({
+        url: '/new/songs',
+        method: 'get',
+        params: {
+            type//  地区分类，默认为 0  0: 最新 1：内地，2：港台，3：欧美，4：韩国，5：日本
+        }
+    })
+};
+

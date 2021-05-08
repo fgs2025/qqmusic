@@ -96,14 +96,12 @@ export default {
       this.ind = 0;
       this.indList = [];
       this.songlist = JSON.parse(e.newValue);
-      let songId = this.songlist[this.ind].songmid;
-      this.songUrls(songId);
+      this.nextplay(this.ind);
     });
     if (window.performance.navigation.type == 1) {
       window.localStorage.setItem("openActive", true);
     }
     window.addEventListener("beforeunload", () => {
-      window.localStorage.setItem("songList", JSON.stringify(this.songlist));
       localStorage.removeItem("openActive");
     });
   },
@@ -124,12 +122,16 @@ export default {
       window.localStorage.setItem("songList", JSON.stringify(this.songlist));
     },
     deleteSong(val) {
-      this.songlist.splice(val, 1);
-      this.indList.forEach((row, i) => {
-        if (row == val) {
-          this.indList.splice(i, 1);
-        }
-      });
+      if (this.songlist.length > 1) {
+        this.songlist.splice(val, 1);
+        this.indList.forEach((row, i) => {
+          if (row == val) {
+            this.indList.splice(i, 1);
+          }
+        });
+      } else {
+        this.empty();
+      }
     },
     palyStateChange(val) {
       //接受子组件点击播放暂停按钮的处理
@@ -145,7 +147,12 @@ export default {
       //接受子组件点下一首按钮的处理
       if (this.songlist.length > 0) {
         this.ind = val;
-        let id = this.songlist[this.ind].songmid;
+        let id = "";
+        if (this.songlist[this.ind].songmid) {
+          id = this.songlist[this.ind].songmid;
+        } else {
+          id = this.songlist[this.ind].mid;
+        }
         this.songUrls(id);
       }
     },
@@ -182,9 +189,14 @@ export default {
       this.audio.width = (currentTime / this.audio.duration) * 100;
     },
     setSongInfo() {
-      this.songInfo.name = this.songlist[this.ind].songname;
+      if (this.songlist[this.ind].songname) {
+        this.songInfo.name = this.songlist[this.ind].songname;
+        this.songInfo.album = this.songlist[this.ind].albumname;
+      } else {
+        this.songInfo.name = this.songlist[this.ind].name;
+        this.songInfo.album = this.songlist[this.ind].album.name;
+      }
       this.songInfo.sing = this.songlist[this.ind].singer[0].name;
-      this.songInfo.album = this.songlist[this.ind].albumname;
     },
     ended() {
       //歌曲播放结束
@@ -193,13 +205,13 @@ export default {
     songUrls(id) {
       this.audio.palyState = false;
       this.audio.loading = true;
+      this.audio.audioUrl = "";
       this.$nextTick(() => {
         this.$refs.songLists.scroll();
       });
       //获取播放链接
       songUrls(id).then((res) => {
         clearTimeout(this.timer);
-        this.audio.audioUrl = "";
         if (this.type != 1) {
           if (this.ind != this.indList[this.indList.length - 1]) {
             this.indList.push(this.ind);
@@ -227,10 +239,11 @@ export default {
     getSongList() {
       //获取歌单详情
       this.songlist = JSON.parse(localStorage.getItem("songList"));
-      if (this.songlist.length > 0) {
-        let songId = this.songlist[this.ind].songmid;
-        this.songUrls(songId);
-      }
+      this.nextplay(this.ind);
+      // if (this.songlist.length > 0) {
+      //   let songId = this.songlist[this.ind].songmid;
+      //   this.songUrls(songId);
+      // }
     },
   },
   watch: {

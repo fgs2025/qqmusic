@@ -18,7 +18,7 @@
     </div>
     <div class="middle">
       <div class="m_top">
-        <span>{{ songInfo.name }} - {{ songInfo.sing }}</span>
+        <span>{{ songInfo.name }}- {{ songInfo.sing }}</span>
         <span>
           {{ audio.currentTime | secondsFormat }} /
           {{ audio.duration | secondsFormat }}</span

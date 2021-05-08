@@ -83,14 +83,19 @@ export default {
       });
     },
     currentTime(val) {
-      for (let i = 0; i < this.lyricsObjArr.length; i++) {
-        if (val > parseInt(this.lyricsObjArr[i].time)) {
-          const index = this.$refs.lyric[i].dataset.index;
-          if (i === parseInt(index)) {
-            this.lyricIndex = i;
-            this.transform = 170 - 34 * (i + 1);
+      if (this.lyricsObjArr.length > 1) {
+        for (let i = 0; i < this.lyricsObjArr.length; i++) {
+          if (val > parseInt(this.lyricsObjArr[i].time)) {
+            const index = this.$refs.lyric[i].dataset.index;
+            if (i === parseInt(index)) {
+              this.lyricIndex = i;
+              this.transform = 170 - 34 * (i + 1);
+            }
           }
         }
+      } else {
+        this.lyricIndex = 0;
+        this.transform = 170 - 34 * (0 + 1);
       }
     },
   },

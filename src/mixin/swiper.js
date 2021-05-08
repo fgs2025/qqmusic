@@ -11,6 +11,23 @@ export const swiper = {
             interval: 500
         }
     },
+    computed: {
+        isActive() {
+            //轮播图指示点
+            if (this.i == this.length) {
+                return 0;
+            } else {
+                return this.i;
+            }
+        },
+        length() {
+            //轮播图列表长度
+            if (this.itemlist.length == 0) {
+                return 0;
+            }
+            return this.itemlist.length - 1;
+        },
+    },
     methods: {
         initSwiper() {
             //二维数组转换

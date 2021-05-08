@@ -10,7 +10,7 @@ Vue.filter('PlayNum', function (value) {
 
 
 Vue.filter('secondsFormat', function (value) {
-    //播放量过滤
+    //歌曲时长
     if (!value) return "00:00";
     let interval = Math.floor(value);
     let minute = Math.floor(interval / 60)
