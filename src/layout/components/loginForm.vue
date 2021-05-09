@@ -6,6 +6,7 @@
         <i class="iconfont icon-guanbi pointer" @click="loginOpen = false"></i>
       </div>
       <div class="form-body margin0Auto">
+        <p>后端没有登陆接口，故此处随意填写即可登陆服务器设置好的账号</p>
         <el-form
           :model="ruleForm"
           :rules="rules"
@@ -35,7 +36,7 @@
 <script>
 import { setCookie, getCookie } from "@/api/user.js";
 export default {
-  inject: ["reload"],//APP.vue导进来的刷新
+  inject: ["reload"], //APP.vue导进来的刷新
   props: ["value"],
   data() {
     return {
@@ -118,8 +119,12 @@ export default {
     }
     .form-body {
       width: 50%;
-
       margin-top: 50px;
+      p {
+        word-wrap: break-word;
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
       .form-btn {
         width: 100%;
       }

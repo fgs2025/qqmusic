@@ -17,6 +17,11 @@ export default {
       isRouterAlive: true, //控制视图是否显示的变量
     };
   },
+  mounted() {
+    alert(
+      "本项目仅供学习使用，请尊重版权，请勿利用此项目从事商业行为!\n本项目还没全部完成"
+    );
+  },
   methods: {
     reload() {
       this.isRouterAlive = false; //先关闭，
@@ -43,6 +48,5 @@ export default {
   &::-webkit-scrollbar-track {
     border-radius: 5px;
   }
-  
 }
 </style>

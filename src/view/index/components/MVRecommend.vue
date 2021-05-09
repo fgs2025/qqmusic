@@ -1,11 +1,12 @@
 <template>
   <moban class="PlaylistRecommend" :loading="loading">
     <!-- 标题 -->
-    <template slot="title-wrap">新歌首发</template>
+    <template slot="title-wrap">新碟首发</template>
     <!-- tab点击 -->
     <template slot="tab-wrap">
-      <div class="allBtn pointer" @click="palyAll">播放全部</div>
+      <div class="allBtn pointer">更多></div>
       <span
+        class="tabItem pointer"
         v-for="(item, index) in tabList"
         :key="index"
         @click="tabClick(item, index)"
@@ -22,22 +23,15 @@
         <ul v-for="(item, index) in itemlist" :key="index">
           <li class="item" v-for="(ite, inde) in item" :key="inde">
             <div class="img-box">
-              <img :src="ite.album.pmid | imgURl" alt="" />
+              <img :src="ite.picurl" alt="" />
               <div class="mod_cover__mask"></div>
-              <i
-                class="el-icon-video-play item-i"
-                @click="songListClick(ite)"
-              ></i>
+              <i class="el-icon-video-play item-i" @click="palyMv(ite.vid)"></i>
             </div>
-            <div class="txt-box">
-              <div class="title">
-                <span>{{ ite.name }} {{ ite.subtitle }}</span>
-              </div>
-              <div class="Singer">
-                <span>{{ ite.singer[0].title }}</span>
-              </div>
+            <div class="title">{{ ite.mvtitle }}</div>
+            <div class="magnitude">
+              {{ ite.singer_name }}
             </div>
-            <div class="songlist__time">{{ ite.interval | secondsFormat }}</div>
+            <div class="listennum">{{ ite.listennum | PlayNum }}</div>
           </li>
         </ul>
       </div>
@@ -68,16 +62,15 @@
 </template>
 
 <script>
-import { newSongs } from "@/api/recommend";
+import { NewMv } from "@/api/recommend";
 import { swiper } from "@/mixin/swiper.js";
-
 export default {
   mixins: [swiper],
   data() {
     return {
       tabList: [
         {
-          label: "最新",
+          label: "精选",
           type: "0",
           active: true,
         },
@@ -107,22 +100,14 @@ export default {
           active: false,
         },
       ],
-      size: 9, //分割二维数组的长度.几个一组
       loading: false,
+      size: 10,
     };
   },
   mounted() {
-    this.newSong();
+    this.NewMvs();
   },
   methods: {
-    newSong(type) {
-      this.loading = true;
-      newSongs(type).then((res) => {
-        this.start_itemlist = res.data.list;
-        this.loading = false;
-        this.initSwiper();
-      });
-    },
     tabClick(item) {
       if (!item.active) {
         this.tabList.forEach((row) => (row.active = false));
@@ -132,49 +117,24 @@ export default {
         setTimeout(() => {
           this.swipeTtransform = true;
         });
-        this.newSong(item.type);
+        this.NewMvs(item.type);
       }
     },
-    palyAll() {
-      if (!this.loading) {
-        let openActive = window.localStorage.getItem("openActive");
-        let songlist = JSON.parse(localStorage.getItem("songList"));
-        if (!songlist) {
-          songlist = [];
-        }
-        songlist.unshift(...this.start_itemlist);
-        if (openActive) {
-          window.localStorage.setItem("songList", JSON.stringify(songlist));
-        } else {
-          let routeData = this.$router.resolve({
-            name: "player",
-          });
-          window.open(routeData.href, "_blank");
-          window.localStorage.setItem("openActive", true);
-          window.localStorage.setItem("songList", JSON.stringify(songlist));
-        }
-      }
+    NewMvs(type) {
+      this.loading = true;
+      NewMv(type).then((res) => {
+        this.start_itemlist = res.data.list;
+        this.loading = false;
+        this.initSwiper();
+      });
     },
-    songListClick(ite) {
-      let openActive = window.localStorage.getItem("openActive");
-      let songlist = JSON.parse(localStorage.getItem("songList"));
-      if (!songlist) {
-        songlist = [];
-      }
-      songlist.unshift(ite);
-      if (openActive) {
-        window.localStorage.setItem("songList", JSON.stringify(songlist));
-      } else {
-        let routeData = this.$router.resolve({
-          name: "player",
-        });
-        window.open(routeData.href, "_blank");
-        window.localStorage.setItem("openActive", true);
-        window.localStorage.setItem("songList", JSON.stringify(songlist));
-      }
+    palyMv(vid) {
+      this.$router.push({
+        name: "palymv",
+        params: { id: vid },
+      });
     },
   },
- 
   components: {
     moban: require("@/components/mod_index.vue").default, //导入模板
   },
@@ -191,13 +151,10 @@ export default {
   }
   .allBtn {
     position: absolute;
-    left: 0;
-    top: -10px;
-    padding: 10px 20px;
+    right: 0;
     font-size: 14px;
-    border: 1px solid #ccc;
     &:hover {
-      background-color: rgba(204, 204, 204, 0.3);
+      color: #31c27c;
     }
   }
   .active {
@@ -215,19 +172,19 @@ export default {
       position: relative;
     }
 
-    .item:nth-child(-n + 6) {
-      border-bottom: 1px solid #ccc;
-    }
     .item {
-      display: flex;
-      margin-right: 25px;
+      // display: flex;
+      width: 224px;
+      box-sizing: border-box;
+      list-style: none;
+      margin-right: 20px;
       padding: 10px 0;
       .img-box {
-        width: 86px;
-        height: 86px;
-        position: relative;
+        height: 126px;
+        margin-bottom: 20px;
         cursor: pointer;
         overflow: hidden;
+        position: relative;
         img {
           width: 100%;
           height: 100%;
@@ -257,43 +214,31 @@ export default {
           transform: scale(1.07);
         }
         &:hover .item-i {
-          transform: translate(-50%, -50%) scale(1);
+          transform: translate(-50%, -50%) scale(1.5);
           opacity: 1;
         }
         &:hover .mod_cover__mask {
           opacity: 0.2;
         }
       }
-      .txt-box {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+      .title {
         font-size: 14px;
-        margin-left: 10px;
-        width: 190px;
-        .title,
-        .Singer {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          span {
-            cursor: pointer;
-            &:hover {
-              color: #31c27c;
-            }
-          }
-        }
-        .Singer {
-          color: #999;
-          margin-top: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+        &:hover {
+          color: #31c27c;
         }
       }
-      .songlist__time {
-        display: flex;
-        align-items: center;
-        color: #999;
+      .magnitude {
+        margin-top: 5px;
         font-size: 14px;
-        margin-left: 58px;
+        color: #ccc;
+      }
+      .listennum {
+        font-size: 14px;
+        color: #ccc;
       }
     }
   }

@@ -12,7 +12,7 @@
           <span class="num">{{ index + 1 }}</span>
           <span>{{ item.k }}</span>
         </div>
-        <span class="right">{{ item.n | PlayNum }}万</span>
+        <span class="right">{{ item.n | PlayNum }}</span>
       </div>
     </div>
     <!-- 搜索历史 -->

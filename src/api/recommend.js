@@ -34,3 +34,38 @@ export const newSongs = function (type) {
     })
 };
 
+export const recommendBanner = function () {
+    return instance({
+        url: '/recommend/banner',
+        method: 'get',
+
+    })
+};
+
+export const NewAlbum = function (type) {
+    if (!type) {
+        type = 1
+    }
+    return instance({
+        url: '/new/album',
+        method: 'get',
+        params: {
+            type,
+            num: 20
+        }
+    })
+};
+
+export const NewMv = function (type) {
+    if (!type) {
+        type = 0
+    }
+    return instance({
+        url: '/new/mv',
+        method: 'get',
+        params: {
+            type,
+           
+        }
+    })
+};

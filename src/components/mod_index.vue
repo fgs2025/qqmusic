@@ -66,7 +66,7 @@ export default {
         font-size: 80px;
         color: rgb(22, 174, 235);
       }
-      p{
+      p {
         font-size: 20px;
         font-weight: 800;
         color: rgb(22, 174, 235);
@@ -79,6 +79,7 @@ export default {
       font-size: 30px;
       font-weight: 700;
       letter-spacing: 10px;
+      position: relative;
     }
     .mod_index_tab {
       position: relative;
@@ -87,10 +88,10 @@ export default {
     }
     .mod_swiper_wrap {
       width: 1220px;
+      min-height: 200px;
       overflow: hidden;
       margin-bottom: 30px;
     }
-    
   }
   .mod_swiper_btn {
     position: absolute;

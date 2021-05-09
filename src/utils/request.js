@@ -11,11 +11,11 @@ instance.interceptors.request.use((config) => {//请求拦截
 
 instance.interceptors.response.use(//响应拦截
     response => {
-        if (response.data.result !== 100) {
-            return Promise.reject(response.data)
-        } else {
+        // if (response.data.result !== 100) {
+        //     return Promise.reject(response.data)
+        // } else {
             return response.data
-        }
+        // }
     },
     error => {
         return Promise.reject(error);

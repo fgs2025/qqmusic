@@ -104,7 +104,7 @@ export default {
       window.localStorage.setItem("openActive", true);
     }
     window.addEventListener("beforeunload", () => {
-      localStorage.removeItem("openActive");
+      window.localStorage.removeItem("openActive");
       window.localStorage.setItem("songList", JSON.stringify(this.songlist));
     });
   },
@@ -249,8 +249,8 @@ export default {
       // }
     },
   },
-  beforeunload(){
-    window.localStorage.setItem("sss", 'ssss');
+  beforeunload() {
+    window.localStorage.setItem("sss", "ssss");
   },
   watch: {
     "audio.volume"(val) {

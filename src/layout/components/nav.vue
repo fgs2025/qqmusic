@@ -15,11 +15,11 @@ export default {
       navList: [
         {
           title: "音乐馆",
-          path: "/MusicHall",
+          path: "/musicHall",
         },
         {
           title: "我的音乐",
-          path: "/MyMusic",
+          path: "/myMusic",
         },
         {
           title: "客户端",

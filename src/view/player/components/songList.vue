@@ -40,7 +40,9 @@
             ></span>
           </div>
           <div class="name-box">
-            <span class="name">{{ item.songname || item.name }}</span>
+            <span class="name">{{
+              item.songname || item.title || item.name
+            }}</span>
             <span class="btn-box">
               <span
                 class="btn pointer"
