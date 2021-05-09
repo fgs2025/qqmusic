@@ -1,7 +1,7 @@
 <template>
   <moban class="PlaylistRecommend" :loading="loading">
     <!-- 标题 -->
-    <template slot="title-wrap">新碟首发</template>
+    <template slot="title-wrap">MV</template>
     <!-- tab点击 -->
     <template slot="tab-wrap">
       <div class="allBtn pointer">更多></div>
