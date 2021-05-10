@@ -92,15 +92,15 @@ export default {
     deleteSong(index) {
       this.$emit("deleteSong", index);
     },
-    scroll(click) {
+    scroll() {
       //播放歌曲定位事件
       if (this.songlists.length > 0) {
         let childEl = this.$refs.main.children[this.ind + 1].offsetTop;
         let parentEl = this.$refs.main.offsetTop;
         this.scrollTop = childEl - parentEl - 55;
-        if (!click) {
+        // if (!click) {
           this.$refs.main.scrollTop = this.scrollTop;
-        }
+        // }
         this.$refs.main.addEventListener("scroll", (e) => {
           let f = e.target.scrollTop;
           if (f - this.scrollTop >= 100 || this.scrollTop - f >= 100) {

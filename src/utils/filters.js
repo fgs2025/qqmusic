@@ -2,11 +2,25 @@ import Vue from 'vue'
 
 Vue.filter('PlayNum', function (value) {
     //播放量过滤
-    let filerVal = ''
-    if (value > 10000) {
-        filerVal = parseFloat(value / 10000).toFixed(1);
+    // let filerVal = ''
+    // if (value > 10000) {
+    //     filerVal = parseFloat(value / 10000).toFixed(1);
+    // }
+    // return value > 10000 ? filerVal + '万' : value;
+    var param = {};
+    var k = 10000,
+        sizes = ['', '万', '亿', '万亿'],
+        i;
+    if (value < k) {
+        param.value = value
+        param.unit = ''
+    } else {
+        i = Math.floor(Math.log(value) / Math.log(k));
+        param.value = ((value / Math.pow(k, i))).toFixed(1);
+        param.unit = sizes[i];
     }
-    return value > 10000 ? filerVal + '万' : value;
+    return param.value + param.unit;
+
 })
 
 
