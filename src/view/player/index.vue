@@ -241,17 +241,14 @@ export default {
     },
     getSongList() {
       //获取歌单详情
-      this.songlist = JSON.parse(localStorage.getItem("songList"));
-      this.nextplay(this.ind);
-      // if (this.songlist.length > 0) {
-      //   let songId = this.songlist[this.ind].songmid;
-      //   this.songUrls(songId);
-      // }
+      let songlist = JSON.parse(localStorage.getItem("songList"));
+      if (songlist) {
+        this.songlist = songlist;
+        this.nextplay(this.ind);
+      }
     },
   },
-  beforeunload() {
-    window.localStorage.setItem("sss", "ssss");
-  },
+
   watch: {
     "audio.volume"(val) {
       this.$refs.audio.volume = val;

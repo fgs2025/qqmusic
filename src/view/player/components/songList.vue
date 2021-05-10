@@ -17,7 +17,7 @@
             audio.palyState && index == ind ? 'paly' : '',
             audio.loading && index == ind ? 'loadingAnimation' : '',
           ]"
-          v-for="(item, index) in songlist"
+          v-for="(item, index) in songlists"
           :key="index"
           @dblclick="songPlay(index)"
         >
@@ -82,6 +82,7 @@ export default {
     return {
       tick: false, //定位
       scrollTop: 0, //歌单列表的位置
+      songlists: [],
     };
   },
   methods: {
@@ -93,7 +94,7 @@ export default {
     },
     scroll(click) {
       //播放歌曲定位事件
-      if (this.songlist.length > 0) {
+      if (this.songlists.length > 0) {
         let childEl = this.$refs.main.children[this.ind + 1].offsetTop;
         let parentEl = this.$refs.main.offsetTop;
         this.scrollTop = childEl - parentEl - 55;
@@ -136,6 +137,13 @@ export default {
     tickClick() {
       //在播放歌曲定位事件
       this.$refs.main.scrollTop = this.scrollTop;
+    },
+  },
+  watch: {
+    songlist(val) {
+      if (val.length > 0) {
+        this.songlists = val;
+      }
     },
   },
 };
