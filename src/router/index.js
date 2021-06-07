@@ -7,34 +7,34 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    component: () => import('../layout/index.vue'),
+    component: () => import('@/layout/index.vue'),
     redirect: 'musichall',
     children: [
       {
         path: 'musichall',
         name: 'musichall',
-        component: () => import('../view/musichall/index.vue'),
+        component: () => import('@/view/musichall/index.vue'),
         redirect: 'musichall/index',
         children: [
           {
             path: 'index',
             name: 'index',
-            component: () => import('../view/index/index.vue'),
+            component: () => import('@/view/index/index.vue'),
           },
           {
             path: 'singer',
             name: 'singer',
-            component: () => import('../view/singer/index.vue'),
+            component: () => import('@/view/singer/index.vue'),
           },
           {
             path: 'mv',
             name: 'mv',
-            component: () => import('../view/mv/index.vue'),
+            component: () => import('@/view/mv/index.vue'),
             children: [
               {
                 path: 'palymv/:id',
                 name: 'palymv',
-                component: () => import('../view/mv/components/palyMv.vue')
+                component: () => import('@/view/mv/components/palyMv.vue')
               }
             ]
           },
@@ -44,14 +44,14 @@ const routes = [
       {
         path: '/mymusic',
         name: 'mymusic',
-        component: () => import('../view/mymusic/index.vue'),
+        component: () => import('@/view/mymusic/index.vue'),
       },
     ]
   },
   {
     path: '/player',
     name: 'player',
-    component: () => import('../view/player/index.vue'),
+    component: () => import('@/view/player/index.vue'),
   },
 
 ]
