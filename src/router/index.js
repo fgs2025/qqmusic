@@ -8,11 +8,11 @@ const routes = [
   {
     path: '/',
     component: () => import('../layout/index.vue'),
-    redirect: 'musicHall',
+    redirect: 'musichall',
     children: [
       {
-        path: 'musicHall',
-        name: 'musicHall',
+        path: 'musichall',
+        name: 'musichall',
         component: () => import('../view/musichall/index.vue'),
         redirect: 'musicHall/index',
         children: [
@@ -41,11 +41,11 @@ const routes = [
 
         ]
       },
-      {
-        path: '/myMusic',
-        name: 'myMusic',
-        component: () => import('../view/mymusic/index.vue'),
-      },
+      // {
+      //   path: '/myMusic',
+      //   name: 'myMusic',
+      //   component: () => import('../view/mymusic/index.vue'),
+      // },
 
     ]
   },
