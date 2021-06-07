@@ -16,15 +16,15 @@ export default {
       nav_list: [
         {
           nav: "首页",
-          link: "/musicHall/index",
+          link: "/musichall/index",
         },
         {
           nav: "歌手",
-          link: "/musicHall/singer",
+          link: "/musichall/singer",
         },
          {
           nav: "mv",
-          link: "/musicHall/mv",
+          link: "/musichall/mv",
         },
       ],
     };

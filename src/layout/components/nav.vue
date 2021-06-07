@@ -15,7 +15,7 @@ export default {
       navList: [
         {
           title: "音乐馆",
-          path: "/musicHall",
+          path: "/musichall",
         },
         {
           title: "我的音乐",
