@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-
+import musichall from '../view/musichall/index.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -13,8 +13,8 @@ const routes = [
       {
         path: 'musichall',
         name: 'musichall',
-        component: () => import('../view/musichall/index.vue'),
-        redirect: 'musicHall/index',
+        component:musichall,
+        redirect: 'musichall/index',
         children: [
           {
             path: 'index',
