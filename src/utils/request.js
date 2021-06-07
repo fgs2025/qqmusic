@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const instance = axios.create({//创建axios实例
-    baseURL: "/api",
+    baseURL: "http://120.78.214.15:3300",
     // timeout: 5000,
 });
 
