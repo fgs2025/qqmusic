@@ -16,8 +16,8 @@
           <el-form-item prop="account">
             <el-input v-model="ruleForm.account" placeholder="账号"></el-input>
           </el-form-item>
-          <el-form-item prop="password">
-            <el-input v-model="ruleForm.password" placeholder="密码"></el-input>
+          <el-form-item prop="Cookie">
+            <el-input v-model="ruleForm.Cookie" placeholder="Cookie"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button
@@ -42,11 +42,11 @@ export default {
     return {
       ruleForm: {
         account: "",
-        password: "",
+        Cookie: "",
       },
       rules: {
         account: [{ required: true, message: "请输入账号", trigger: "blur" }],
-        password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+        Cookie: [{ required: true, message: "请输入Cookie", trigger: "blur" }],
       },
       loginOpen: false,
     };
@@ -55,7 +55,8 @@ export default {
     login(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          setCookie().then(() => {
+          setCookie(this.ruleForm.Cookie).then(() => {
+            this.$store.dispatch("user/setAccount", this.ruleForm.account);
             getCookie().then((res) => {
               if (res.result == 100) {
                 this.$message({

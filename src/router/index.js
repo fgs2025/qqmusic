@@ -13,7 +13,7 @@ const routes = [
       {
         path: 'musichall',
         name: 'musichall',
-        component: () => import('@/view/musichall/index.vue'),
+        component: () => import('@/view/MusicHall/index.vue'),
         redirect: 'musichall/index',
         children: [
           {
@@ -44,7 +44,7 @@ const routes = [
       {
         path: '/mymusic',
         name: 'mymusic',
-        component: () => import('@/view/mymusic/index.vue'),
+        component: () => import('@/view/MyMusic/index.vue'),
       },
     ]
   },

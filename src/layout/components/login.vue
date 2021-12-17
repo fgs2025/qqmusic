@@ -19,11 +19,12 @@ export default {
   },
   mounted() {
     Cookie().then((res) => {
-      let cookie = res.data.cookie;
+      let cookie = res.data;
+      this.$store.dispatch("user/setAccount", cookie.uin);
       if (cookie) {
-        detail()
-          .then((res) => {
+        detail().then((res) => {
             this.img = res.data.creator.headpic;
+            console.log(res);
           })
           .catch(() => {
             return;

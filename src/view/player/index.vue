@@ -221,9 +221,14 @@ export default {
           }
         }
         this.setSongInfo();
-        if (res.data[id]) {
-          this.audio.audioUrl = res.data[id];
-        } else {
+        if (res.result == 100 && res.data[id]) {
+          this.audio.audioUrl = "";
+          setTimeout(()=>{
+            this.audio.audioUrl = JSON.parse(JSON.stringify(res.data[id]));
+          },1000)
+        }
+        if (res.result == 200 || Object.keys(res.data).length == 0) {
+          this.$message.error(res.errMsg || "未知错误");
           this.timer = setTimeout(() => {
             this.$refs.footBtn.nextSong();
           }, 5000);
